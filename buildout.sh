@@ -210,6 +210,7 @@ volumes:
   auth:
   xdmod:
   src:
+  container-shared:
 services:
   db:
     image: sql_server:latest
@@ -340,6 +341,9 @@ $HOSTLIST
       - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
+      - /var/lib/containers
+      - /dev/fuse:/dev/fuse:rw
+      - container-shared:/srv/containers
 $SYSDFSMOUNTS
 $LOGGING
 $HOSTLIST
@@ -376,6 +380,7 @@ cat <<EOF
       - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
+      - container-shared:/srv/containers
 $SYSDFSMOUNTS
     ulimits:
       nproc:
@@ -414,6 +419,7 @@ done
       - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
+      - container-shared:/srv/containers
 $SYSDFSMOUNTS
 $CLOUD_MOUNTS
     ulimits:

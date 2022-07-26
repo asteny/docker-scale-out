@@ -23,7 +23,8 @@ RUN dnf -y install --allowerasing --exclude google-chrome-\* \
 	systemd net-tools socat jq squashfs-tools fuse-overlayfs pigz \
 	fuse-devel.x86_64 rpcgen.x86_64 cronie valgrind-devel \
 	python3-virtualenv python3-setuptools-wheel python3-pip-wheel \
-	python3-urllib3 python3-six iproute procps-ng
+	python3-urllib3 python3-six iproute procps-ng podman \
+	lua-json.noarch rsync crun
 RUN pip3 install certifi pip wheel setuptools markdown
 RUN git clone --depth 1 --single-branch -b v1.12.0 https://github.com/benmcollins/libjwt.git /usr/local/src/libjwt/
 WORKDIR /usr/local/src/libjwt
@@ -161,6 +162,9 @@ RUN for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma;
 	/usr/sbin/useradd -c $i -m -g users -G bedrock $i && \
 	echo 'password' | passwd $i --stdin && \
 	mkdir -p /home/$i/.ssh && \
+	mkdir -p /srv/containers/$i/ && \
+	chown $i:bedrock /srv/containers/$i/ && \
+	chmod 0700 /srv/containers/$i/ && \
 	ssh-keygen -f /home/$i/.ssh/id_ecdsa -N '' -t ecdsa && \
 	ssh-keygen -y -f /home/$i/.ssh/id_ecdsa > /home/$i/.ssh/id_ecdsa.pub && \
 	cat /home/$i/.ssh/id_ecdsa.pub >> /home/$i/.ssh/authorized_keys && \
@@ -169,6 +173,9 @@ RUN for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma;
 	done
 RUN usermod -G managers fred && \
 	usermod -G managers barney
+
+COPY scrun.sh /usr/local/bin/scrun
+RUN chmod 0755 /usr/local/bin/scrun
 
 #disable ssh host auth checks
 RUN echo -e '\nNoHostAuthenticationForLocalhost=yes\nStrictHostKeyChecking=no' >> /etc/ssh/ssh_config && \
@@ -240,6 +247,7 @@ COPY slurmctld.service /etc/systemd/system/slurmctld.service.d/local.conf
 COPY slurmd.service /etc/systemd/system/slurmd.service.d/local.conf
 COPY slurmrestd.service /etc/systemd/system/slurmrestd.service.d/local.conf
 COPY postfix.service /etc/systemd/system/postfix.service.d/local.conf
+COPY containers.conf /etc/containers/containers.conf
 RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
