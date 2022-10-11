@@ -79,6 +79,9 @@ the following subnets:
 To specify an explicit version of Slurm to be compiled and installed:
 > export SLURM_RELEASE=slurm-$version
 
+Make sure to call `make clean` after to invalidate all the caches with the
+prior release.
+
 ## To build images
 
 ```
