@@ -47,6 +47,10 @@ function sync(src, dst)
 	end
 end
 
+function slurm_stage_in_remote(id, bundle, spool_path, config_path)
+	return slurm.SUCCESS
+end
+
 function slurm_stage_in_allocator(id, bundle, spool_path, config_path)
 	slurm.log_info("called slurm_stage_in_allocator() bundle:%s spool_path:%s config_path:%s",
 		bundle, spool_path, config_path)
@@ -133,6 +137,10 @@ function slurm_stage_out_allocator(id, bundle, spool_path, config_path)
 		return slurm.FAILURE;
 	end
 
+	return slurm.SUCCESS
+end
+
+function slurm_stage_out_remote(id, bundle, spool_path, config_path)
 	return slurm.SUCCESS
 end
 
