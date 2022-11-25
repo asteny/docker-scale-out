@@ -139,6 +139,11 @@ RUN git clone --depth 1 --single-branch --branch 1.26.6 https://github.com/urlli
 	cd /usr/local/src/urllib3 && \
 	python3 setup.py install
 
+WORKDIR /usr/local/src/
+RUN git clone --depth 1 --single-branch -b v0.30 https://github.com/hpc/charliecloud.git
+WORKDIR /usr/local/src/charliecloud
+RUN ./autogen.sh && ./configure --disable-test && make -j >/dev/null && make install
+
 #make ssh host keys
 RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa && \
 	ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa && \
