@@ -24,7 +24,7 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	fuse-devel.x86_64 rpcgen.x86_64 cronie valgrind-devel \
 	python3-virtualenv python3-setuptools-wheel python3-pip-wheel \
 	python3-urllib3 python3-six iproute procps-ng podman \
-	lua-json.noarch rsync crun
+	lua-json.noarch rsync crun python3-requests
 RUN pip3 install certifi pip wheel setuptools markdown
 RUN git clone --depth 1 --single-branch -b v1.12.0 https://github.com/benmcollins/libjwt.git /usr/local/src/libjwt/
 WORKDIR /usr/local/src/libjwt
