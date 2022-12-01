@@ -179,6 +179,11 @@ The number of CPU threads on the host are multiplied by the number of nodes. Do 
 ```
 ERROR: Pool overlaps with other one on this address space
 ```
+or
+```
+failed to prepare ${HASH}: max depth exceeded
+ERROR: Service 'slurmdbd' failed to build : Build failed
+```
 Call this:
 ```
 docker-compose down
