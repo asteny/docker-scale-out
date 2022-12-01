@@ -23,6 +23,8 @@ for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma
 do
 	sacctmgr -vi add user $i Account=bedrock DefaultAccount=bedrock
 done
+sacctmgr update user dino set admin=admin
+sacctmgr update user pebbles set admin=admin
 
 if [ "$(hostname -s)" = "mgmtnode" ]
 then
