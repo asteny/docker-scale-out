@@ -1,0 +1,201 @@
+From c296cff45b8c4eb2c104dd66388ae70ed5c34589 Mon Sep 17 00:00:00 2001
+From: Nathan Rini <nate@schedmd.com>
+Date: Thu, 1 Dec 2022 13:14:39 -0700
+Subject: [PATCH 1/6] Use nobody instead of root in scontrol_update_job()
+
+Bug 15410
+---
+ src/scontrol/update_job.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/scontrol/update_job.c b/src/scontrol/update_job.c
+index 9da31232d7..ca536adcd3 100644
+--- a/src/scontrol/update_job.c
++++ b/src/scontrol/update_job.c
+@@ -1105,7 +1105,7 @@ extern int scontrol_update_job(int argc, char **argv)
+ 			update_cnt++;
+ 		}
+ 		else if (!xstrncasecmp(tag, "UserID", MAX(taglen, 3))) {
+-			uid_t user_id = 0;
++			uid_t user_id = SLURM_AUTH_NOBODY;
+ 			if (uid_from_string(val, &user_id) < 0) {
+ 				exit_code = 1;
+ 				fprintf (stderr, "Invalid UserID: %s\n", val);
+-- 
+2.34.1
+
+
+From b9cc03564388ae899a3e7289ee0a47175c1d993e Mon Sep 17 00:00:00 2001
+From: Nathan Rini <nate@schedmd.com>
+Date: Thu, 1 Dec 2022 13:38:03 -0700
+Subject: [PATCH 2/6] sattach - swap to default unset user and groups
+
+Bug 15410
+---
+ src/sattach/opt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/sattach/opt.c b/src/sattach/opt.c
+index 0105df0720..bb0c366bc1 100644
+--- a/src/sattach/opt.c
++++ b/src/sattach/opt.c
+@@ -160,8 +160,8 @@ static void _opt_default()
+ 	opt.quiet = 0;
+ 	opt.verbose = 0;
+ 
+-	opt.euid = (uid_t) -1;
+-	opt.egid = (gid_t) -1;
++	opt.euid = SLURM_AUTH_NOBODY;
++	opt.egid = SLURM_AUTH_NOBODY;
+ 
+ 	opt.labelio = false;
+ 	opt.ctrl_comm_ifhn  = xshort_hostname();
+-- 
+2.34.1
+
+
+From 5ac9ce2497c8124d3b869b6286309d5a08ea5ff0 Mon Sep 17 00:00:00 2001
+From: Nathan Rini <nate@schedmd.com>
+Date: Thu, 1 Dec 2022 13:38:42 -0700
+Subject: [PATCH 3/6] scontrol - cleanup error for invalid --user
+
+Give a single line error message.
+
+Bug 15410
+---
+ src/scontrol/update_job.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/scontrol/update_job.c b/src/scontrol/update_job.c
+index ca536adcd3..eec0dca73d 100644
+--- a/src/scontrol/update_job.c
++++ b/src/scontrol/update_job.c
+@@ -1106,10 +1106,8 @@ extern int scontrol_update_job(int argc, char **argv)
+ 		}
+ 		else if (!xstrncasecmp(tag, "UserID", MAX(taglen, 3))) {
+ 			uid_t user_id = SLURM_AUTH_NOBODY;
+-			if (uid_from_string(val, &user_id) < 0) {
+-				exit_code = 1;
+-				fprintf (stderr, "Invalid UserID: %s\n", val);
+-				fprintf (stderr, "Request aborted\n");
++			if ((exit_code = uid_from_string(val, &user_id))) {
++				error("Aboring request: invalid user=%s", val);
+ 				return 0;
+ 			}
+ 			job_uid = (uint32_t) user_id;
+-- 
+2.34.1
+
+
+From 6023aedeee4b89ee242d2bdf5c3648a1a4967ece Mon Sep 17 00:00:00 2001
+From: Nathan Rini <nate@schedmd.com>
+Date: Thu, 1 Dec 2022 13:39:56 -0700
+Subject: [PATCH 4/6] scontrol - default user proxy as nobody
+
+Switch to using SLURM_AUTH_NOBODY instead of NO_VAL if proxy user is not
+being provided.
+
+Bug 15410
+---
+ src/scontrol/scontrol.c   | 3 +--
+ src/scontrol/update_job.c | 2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/scontrol/scontrol.c b/src/scontrol/scontrol.c
+index 3c3c2ea9cc..5617f289c0 100644
+--- a/src/scontrol/scontrol.c
++++ b/src/scontrol/scontrol.c
+@@ -68,8 +68,7 @@ int quiet_flag = 0;	/* quiet=1, verbose=-1, normal=0 */
+ int sibling_flag = 0;   /* show sibling jobs (if any fed job). */
+ int verbosity = 0;	/* count of "-v" options */
+ uint32_t cluster_flags; /* what type of cluster are we talking to */
+-uint32_t euid = NO_VAL;	 /* send request to the slurmctld in behave of
+-			    this user */
++uint32_t euid = SLURM_AUTH_NOBODY; /* proxy request as user */
+ 
+ front_end_info_msg_t *old_front_end_info_ptr = NULL;
+ job_info_msg_t *old_job_info_ptr = NULL;
+diff --git a/src/scontrol/update_job.c b/src/scontrol/update_job.c
+index eec0dca73d..6a00766b5c 100644
+--- a/src/scontrol/update_job.c
++++ b/src/scontrol/update_job.c
+@@ -1154,7 +1154,7 @@ extern int scontrol_update_job(int argc, char **argv)
+ 
+ 	/* If specified, override uid with effective uid provided by
+ 	 * -u <uid> or --uid=<uid> */
+-	if (euid != NO_VAL)
++	if (euid != SLURM_AUTH_NOBODY)
+ 		job_msg.user_id = euid;
+ 
+ 	if (!job_msg.job_id_str && job_msg.name) {
+-- 
+2.34.1
+
+
+From 925ba657a471260ac29e5de65b6b67916d3e07c8 Mon Sep 17 00:00:00 2001
+From: Nathan Rini <nate@schedmd.com>
+Date: Thu, 1 Dec 2022 12:22:00 -0700
+Subject: [PATCH 5/6] slurmctld - switch job modification RPC to using nobody
+
+Bug 15410
+---
+ src/slurmctld/proc_req.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/src/slurmctld/proc_req.c b/src/slurmctld/proc_req.c
+index 3e851a264b..942220e303 100644
+--- a/src/slurmctld/proc_req.c
++++ b/src/slurmctld/proc_req.c
+@@ -4120,10 +4120,21 @@ static void _slurm_rpc_update_job(slurm_msg_t * msg)
+ 	unlock_slurmctld(fed_read_lock);
+ 
+ 	START_TIMER;
++	if ((job_desc_msg->user_id == NO_VAL) &&
++	    (msg->protocol_version < SLURM_23_02_PROTOCOL_VERSION)) {
++		/* older scontrol used NO_VAL instead of SLURM_AUTH_NOBODY */
++		job_desc_msg->user_id = SLURM_AUTH_NOBODY;
++	}
++	if ((job_desc_msg->group_id == NO_VAL) &&
++	    (msg->protocol_version < SLURM_23_02_PROTOCOL_VERSION)) {
++		/* older scontrol used NO_VAL instead of SLURM_AUTH_NOBODY */
++		job_desc_msg->group_id = SLURM_AUTH_NOBODY;
++	}
++
+ 	/* job_desc_msg->user_id is set when the uid has been overriden with
+ 	 * -u <uid> or --uid=<uid>. NO_VAL is default. Verify the request has
+ 	 * come from an admin */
+-	if (job_desc_msg->user_id != NO_VAL) {
++	if (job_desc_msg->user_id != SLURM_AUTH_NOBODY) {
+ 		if (!validate_super_user(uid)) {
+ 			error_code = ESLURM_USER_ID_MISSING;
+ 			error("Security violation, REQUEST_UPDATE_JOB RPC from uid=%u",
+-- 
+2.34.1
+
+
+From aca7c2900889b0ff624d17f8da5357f5bbf59c4f Mon Sep 17 00:00:00 2001
+From: Nathan Rini <nate@schedmd.com>
+Date: Thu, 1 Dec 2022 14:46:15 -0700
+Subject: [PATCH 6/6] slurmctld - swap to nobody in _update_job()
+
+Bug 15410
+---
+ src/slurmctld/job_mgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/slurmctld/job_mgr.c b/src/slurmctld/job_mgr.c
+index 6dba8efcff..63c02f3aa5 100644
+--- a/src/slurmctld/job_mgr.c
++++ b/src/slurmctld/job_mgr.c
+@@ -12297,7 +12297,7 @@ static int _update_job(job_record_t *job_ptr, job_desc_msg_t *job_specs,
+ 	/* Save before submit plugin potentially modifies it. */
+ 	user_site_factor = job_specs->site_factor;
+ 
+-	if (job_specs->user_id == NO_VAL) {
++	if (job_specs->user_id == SLURM_AUTH_NOBODY) {
+ 		/*
+ 		 * Used by job_submit/lua to find default partition and
+ 		 * access control logic below to validate partition change
+-- 
+2.34.1
+
