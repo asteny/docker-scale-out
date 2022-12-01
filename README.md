@@ -186,7 +186,7 @@ ERROR: Service 'slurmdbd' failed to build : Build failed
 ```
 Call this:
 ```
-docker-compose down
+make clean
 docker network prune -f
 sudo systemctl restart docker
 ```
