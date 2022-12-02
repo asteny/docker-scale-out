@@ -81,13 +81,26 @@ RUN git clone --depth 1 --single-branch -b pdsh-2.33 https://github.com/chaos/pd
 WORKDIR /usr/local/src/pdsh
 RUN autoreconf -i && ./configure --without-rsh --with-ssh --prefix=/usr/local --sysconfdir=/etc/ --with-readline && make -j >/dev/null && make install >/dev/null
 WORKDIR /usr/local/src/
-RUN wget -q 'https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.4.tar.gz' -O /usr/local/src/openmpi.tar.gz && \
-	tar -xzf /usr/local/src/openmpi.tar.gz
+RUN wget -q 'https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.4.tar.gz' -O /usr/local/src/openmpi4.tar.gz && \
+	tar -xzf /usr/local/src/openmpi4.tar.gz
 WORKDIR /usr/local/src/openmpi-4.1.4/
-RUN ./configure --prefix=/usr/local --with-pmix=/usr/local --with-pmix-libdir=/usr/local/lib --with-pmi=/usr/local --with-slurm --with-devel-headers --enable-debug --without-cma \
-	--with-libevent=/usr/local --with-libevent-header=/usr/local/include --with-libevent-libs=/usr/local/lib --with-hwloc=/usr/local/ \
-	--enable-mca-no-build=btl-uct
-RUN	make -j >/dev/null && make install >/dev/null
+RUN ./configure --prefix=/usr/local/openmpi/4.1.4 --with-pmix=/usr/local \
+	--with-pmix-libdir=/usr/local/lib --with-pmi=/usr/local --with-slurm \
+	--with-devel-headers --enable-debug --without-cma --with-libevent=/usr/local \
+	--with-libevent-header=/usr/local/include --with-libevent-libs=/usr/local/lib \
+	--with-hwloc=/usr/local/ --enable-mca-no-build=btl-uct && make -j >/dev/null \
+	&& make install >/dev/null
+WORKDIR /usr/local/src/
+RUN wget -q 'https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.0rc9.tar.gz' -O /usr/local/src/openmpi5.tar.gz && \
+	tar -xzf /usr/local/src/openmpi5.tar.gz
+WORKDIR /usr/local/src/openmpi-5.0.0rc9
+RUN ./configure --prefix=/usr/local/openmpi/5.0.0rc9 --with-pmix=/usr/local \
+	--with-pmix-libdir=/usr/local/lib --with-slurm --with-devel-headers \
+	--enable-debug --without-cma --with-libevent=/usr/local \
+	--with-libevent-header=/usr/local/include \
+	--with-libevent-libs=/usr/local/lib --with-hwloc=/usr/local/ \
+	--enable-mca-no-build=btl-uct && make -j >/dev/null && \
+	make install >/dev/null
 RUN git clone --depth 1 --branch msmtp-1.8.6 https://github.com/marlam/msmtp-mirror.git /usr/local/src/msmtp
 WORKDIR /usr/local/src/msmtp
 RUN autoreconf -i && ./configure && make -j >/dev/null && make install >/dev/null && \
