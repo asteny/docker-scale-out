@@ -275,7 +275,13 @@ FROM ${DOCKER_FROM} as scaleout
 ARG CACHE_DESTROYER
 COPY --from=base / /
 COPY patch /usr/local/src/slurm/patch
-RUN bash -c "if [ -s /usr/local/src/slurm/patch ]; then cd /usr/local/src/slurm/; echo $CACHE_DESTROYER >/dev/null; git pull origin ${SLURM_RELEASE}; git am /usr/local/src/slurm/patch && make -j >/dev/null && make install >/dev/null; fi"
+RUN bash -c "if [ -s /usr/local/src/slurm/patch ]; then \
+	cd /usr/local/src/slurm/; \
+	echo $CACHE_DESTROYER >/dev/null; \
+	git fetch -f origin ${SLURM_RELEASE}:${SLURM_RELEASE} && \
+	git reset --hard ${SLURM_RELEASE} && \
+	git am -3 --exclude=NEWS /usr/local/src/slurm/patch && \
+	make -j >/dev/null && make install >/dev/null; fi"
 
 COPY nodelist /etc/nodelist
 COPY lab_scripts/* /lab_scripts/
