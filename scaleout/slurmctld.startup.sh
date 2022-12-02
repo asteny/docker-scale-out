@@ -19,12 +19,13 @@ sacctmgr -vi add account bedrock Cluster="$CLUSTERNAME" Description="none" Organ
 sacctmgr -vi add user root Account=bedrock DefaultAccount=bedrock
 sacctmgr -vi add user slurm Account=bedrock DefaultAccount=bedrock
 
-for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma
+for i in arnold bambam barney betty chip edna fred gazoo wilma
 do
 	sacctmgr -vi add user $i Account=bedrock DefaultAccount=bedrock
 done
-sacctmgr update user dino set admin=admin
-sacctmgr update user pebbles set admin=admin
+
+sacctmgr -vi add user dino Account=bedrock DefaultAccount=bedrock admin=admin
+sacctmgr -vi add user pebbles Account=bedrock DefaultAccount=bedrock admin=admin
 
 if [ "$(hostname -s)" = "mgmtnode" ]
 then
