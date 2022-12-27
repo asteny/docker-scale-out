@@ -53,8 +53,8 @@ RUN git clone --depth 1 --single-branch -b master https://github.com/SchedMD/slu
 WORKDIR /usr/local/src/slurm
 RUN git config --global user.email "you@example.com" && \
 	git config --global user.name "scale out" && \
-	git fetch --depth 1 origin ${SLURM_RELEASE}:${SLURM_RELEASE} && \
-	git checkout ${SLURM_RELEASE}
+	git fetch --depth 1 origin ${SLURM_RELEASE} && \
+	git checkout FETCH_HEAD
 RUN ./configure --enable-slurmrestd --enable-multiple-slurmd --enable-memory-leak-debug --enable-developer --disable-optimizations --with-munge=/usr/local/ --prefix=/usr/local \
 	--sharedstatedir=/var/run/ \
 	--enable-pam --sysconfdir=/etc/slurm --with-hdf5=/usr/local/bin/h5cc >/dev/null && \
