@@ -110,7 +110,9 @@ RUN autoreconf -i && ./configure && make -j >/dev/null && make install >/dev/nul
 	ln -nfs /usr/local/bin/msmtp /usr/lib/sendmail
 COPY msmtprc /usr/local/etc/msmtprc
 ARG SUBNET
+ARG SUBNET6
 ENV SUBNET=${SUBNET}
+ENV SUBNET6=${SUBNET6}
 RUN postconf -e "mydestination = cluster scaleout localhost.localdomain localhost" && \
 	postconf -e "mynetworks = 127.0.0.0/8, ${SUBNET}.0.0/16" && \
 	postconf -e "inet_interfaces = all" && \
@@ -235,7 +237,8 @@ COPY slurmd.check.sh /usr/local/bin/slurmd.check.sh
 COPY login.startup.sh /usr/local/bin/login.startup.sh
 COPY slurmrestd.startup.sh /usr/local/bin/slurmrestd.startup.sh
 COPY slurmrestd.env /etc/sysconfig/slurmrestd
-RUN sed -e "s/{SUBNET}/${SUBNET}/" -i /etc/sysconfig/slurmrestd && \
+RUN sed -e "s/{SUBNET6}/${SUBNET6}/" -e "s/{SUBNET}/${SUBNET}/" \
+	-i /etc/sysconfig/slurmrestd && \
 	chmod 0755 /usr/local/bin/*.sh
 
 RUN cp /usr/local/src/slurm/etc/{slurmctld.service,slurmd.service,slurmdbd.service,slurmrestd.service}  /usr/lib/systemd/system && \
