@@ -24,8 +24,9 @@ do
 	sacctmgr -vi add user $i Account=bedrock DefaultAccount=bedrock
 done
 
-sacctmgr -vi add user dino Account=bedrock DefaultAccount=bedrock admin=admin
-sacctmgr -vi add user pebbles Account=bedrock DefaultAccount=bedrock admin=admin
+#disable admins to allow their setup in class
+#sacctmgr -vi add user dino Account=bedrock DefaultAccount=bedrock admin=admin
+#sacctmgr -vi add user pebbles Account=bedrock DefaultAccount=bedrock admin=admin
 
 if [ "$(hostname -s)" = "mgmtnode" ]
 then
