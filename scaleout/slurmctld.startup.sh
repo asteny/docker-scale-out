@@ -19,7 +19,7 @@ sacctmgr -vi add account bedrock Cluster="$CLUSTERNAME" Description="none" Organ
 sacctmgr -vi add user root Account=bedrock DefaultAccount=bedrock
 sacctmgr -vi add user slurm Account=bedrock DefaultAccount=bedrock
 
-for i in arnold bambam barney betty chip edna fred gazoo wilma
+for i in arnold bambam barney betty chip edna fred gazoo wilma dino pebbles
 do
 	sacctmgr -vi add user $i Account=bedrock DefaultAccount=bedrock
 done
