@@ -79,7 +79,7 @@ while True:
                 #increase node count by 1
                 update_nodes()
 
-                os.system("docker-compose up --scale cloud=%s -d" % \
+                os.system("docker-compose up --scale cloud=%s --no-recreate -d" % \
                         (len(avail_nodes) + len(taken_nodes) + 1))
 
                 update_nodes()
