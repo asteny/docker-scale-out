@@ -5,7 +5,7 @@ function getmip
 {
 	#Avoid IPv6 until bug#11321 is resolved
 
-	getent ahosts mgmtnode | awk '
+	getent ahostsv4 mgmtnode | awk '
 		$2 == "STREAM" && $1 !~ /:/ {
 			print $1
 			exit 0
