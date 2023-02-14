@@ -11,11 +11,10 @@ import stat
 import json
 from shlex import quote
 
+active_nodes = 0
 server_address = 'cloud_socket'
-system_nodes = set()
-taken_nodes = set()
+requested_nodes = set()
 node_names = dict() # docker tag -> requested hostname
-avail_nodes = None
 
 # Make sure the socket does not already exist
 try:
@@ -34,26 +33,7 @@ os.chmod(server_address, stat.S_IROTH | stat.S_IWOTH)
 sock.listen(1)
 
 sys.argv.pop(0)
-process = subprocess.run(sys.argv)
-
-process = subprocess.run(["docker-compose", "ps", "-q"], capture_output=True)
-
-system_nodes = set(process.stdout.decode('utf-8').split("\n"))
-
-def update_nodes():
-    global avail_nodes, system_nodes, taken_nodes
-
-    process = subprocess.run(["docker-compose", "ps", "-q"], capture_output=True)
-    found_nodes = set(process.stdout.decode('utf-8').split("\n"))
-    avail_nodes = found_nodes - system_nodes - taken_nodes
-    #todo missing nodes?
-
-#    for node in new_nodes:
-#        process = subprocess.run(["docker", "inspect", node], capture_output=True)
-#        props = json.loads(process.stdout)
-#
-#        if props is not None:
-#            nodes.add(node)
+os.system("docker-compose up --scale cloud=%s --no-recreate -d" % active_nodes)
 
 while True:
     connection=None
@@ -72,47 +52,36 @@ while True:
                 tag=node_names[op[1]]
 
                 os.system("docker rm -f \"%s\"" % (quote(tag)))
-                taken_nodes.remove(tag)
                 node_names.pop(tag, None)
                 connection.sendall(b'ACK')
+                active_nodes -= 1
             elif op[0] == "start":
                 #increase node count by 1
-                update_nodes()
-
-                os.system("docker-compose up --scale cloud=%s --no-recreate -d" % \
-                        (len(avail_nodes) + len(taken_nodes) + 1))
-
-                update_nodes()
-
-                if len(avail_nodes) > 0:
-                    node = avail_nodes.pop()
-                    node_names[op[1]] = node
-
-                    connection.sendall(node.encode('utf-8'))
-                else:
-                    connection.sendall(b'FAIL')
+                requested_nodes.add(op[1])
+                active_nodes += 1
+                os.system("docker-compose up --scale cloud=%s --no-recreate -d" % active_nodes)
+                connection.sendall(b'ACK')
             elif op[0] == "whoami":
-                update_nodes()
+                found=False
 
-                if len(avail_nodes) > 0:
-                    node = avail_nodes.pop()
-                    name = None
+                # already known hash
+                for requested_node, short_node in node_names.items():
+                    if short_node == op[1]:
+                        found=True
+                        break
 
-                    for key, value in node_names.items():
-                        if value == node:
-                            name = key
-                            break
+                if not found:
+                    short_node=op[1]
+                    requested_node = requested_nodes.pop()
+                    node_names[requested_node]=short_node
 
-                    if name is None:
-                        print("responding FAIL - no nodes avail", file=sys.stderr)
-                        connection.sendall(b'FAIL')
-                    else:
-                        print("responding: %s=%s" % (name, node), file=sys.stderr)
-                        taken_nodes.add(node)
-
-                        connection.sendall(name.encode('utf-8'))
+                if requested_node:
+                    print("responding: %s=%s" % (requested_node, short_node), file=sys.stderr)
+                    connection.sendall(requested_node.encode('utf-8'))
                 else:
                     connection.sendall(b'FAIL')
+
+                print("Active Nodes=%s Known Nodes[%s]=%s" % (active_nodes, len(node_names), node_names), file=sys.stderr)
             else:
                 connection.sendall(b'FAIL')
 

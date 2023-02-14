@@ -51,6 +51,7 @@ done
 			echo "$host" > /etc/hostname
 			hostnamectl set-hostname "$host"
 			scontrol update nodename=$host nodeaddr=$src nodehostname=$src
+			echo "Sending nodename=$host nodeaddr=$src nodehostname=$src"
 
 			systemctl daemon-reload
 
