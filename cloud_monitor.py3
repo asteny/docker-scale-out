@@ -33,7 +33,7 @@ os.chmod(server_address, stat.S_IROTH | stat.S_IWOTH)
 sock.listen(1)
 
 sys.argv.pop(0)
-os.system("docker-compose up --scale cloud=%s --no-recreate -d" % active_nodes)
+os.system("docker-compose up --remove-orphans --build --scale cloud=%s --no-recreate -d" % active_nodes)
 
 while True:
     connection=None
