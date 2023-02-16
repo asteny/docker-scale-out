@@ -264,6 +264,10 @@ RUN echo -e "/usr/local/lib\n/usr/local/lib64" >> /etc/ld.so.conf.d/usr_local_li
 	rm -f /run/nologin
 WORKDIR /root/
 
+ARG DOCKER_FROM
+FROM ${DOCKER_FROM} as scaleout
+ARG CACHE_DESTROYER
+COPY --from=base / /
 COPY dump_xdmod.sh /etc/cron.hourly/dump_xdmod.sh
 COPY resume.node.sh /usr/local/sbin/
 COPY suspend.node.sh /usr/local/sbin/
@@ -278,11 +282,6 @@ COPY containers.conf /etc/containers/containers.conf
 RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
-
-ARG DOCKER_FROM
-FROM ${DOCKER_FROM} as scaleout
-ARG CACHE_DESTROYER
-COPY --from=base / /
 COPY patch /usr/local/src/slurm/patch
 RUN bash -c "if [ -s /usr/local/src/slurm/patch ]; then \
 	cd /usr/local/src/slurm/; \
