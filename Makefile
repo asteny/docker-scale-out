@@ -12,7 +12,7 @@ default: ./docker-compose.yml run
 	bash buildout.sh > ./docker-compose.yml
 
 build: ./docker-compose.yml
-	env COMPOSE_HTTP_TIMEOUT=3000 docker-compose $(BUILD)
+	env BUILDKIT_PROGRESS=plain COMPOSE_HTTP_TIMEOUT=3000 docker-compose $(BUILD)
 
 stop:
 	docker-compose down
