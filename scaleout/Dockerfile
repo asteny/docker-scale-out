@@ -23,8 +23,9 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	systemd net-tools socat jq squashfs-tools fuse-overlayfs pigz \
 	fuse-devel.x86_64 rpcgen.x86_64 cronie valgrind-devel \
 	python3-virtualenv python3-setuptools-wheel python3-pip-wheel \
-	python3-urllib3 python3-six iproute procps-ng podman \
-	lua-json.noarch rsync crun python3-requests
+	python3-urllib3 python3-six iproute procps-ng \
+	lua-json.noarch rsync crun python3-requests go \
+	gpgme-devel libseccomp-devel libassuan-devel
 RUN git clone --depth 1 --single-branch -b v3.9.2 https://github.com/luarocks/luarocks.git /usr/local/src/luarocks/
 WORKDIR /usr/local/src/luarocks/
 RUN ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
@@ -159,6 +160,15 @@ RUN python3 ./setup.py install
 RUN git clone --depth 1 --single-branch --branch 1.26.6 https://github.com/urllib3/urllib3.git /usr/local/src/urllib3 && \
 	cd /usr/local/src/urllib3 && \
 	python3 setup.py install
+
+RUN git clone --depth 1 --single-branch --branch v2.1.6 https://github.com/containers/conmon.git /usr/local/src/conmon && \
+	cd /usr/local/src/conmon && \
+	export GOCACHE="$(mktemp -d)" && \
+	make -j && make podman && make install && \
+	git clone --depth 1 --single-branch --branch v4.4.1 https://github.com/containers/podman.git /usr/local/src/podman && \
+	cd /usr/local/src/podman && \
+	export GOCACHE="$(mktemp -d)" && \
+	make -j && make podman && make install
 
 WORKDIR /usr/local/src/
 RUN git clone --depth 1 --single-branch -b v0.30 https://github.com/hpc/charliecloud.git
