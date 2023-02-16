@@ -286,6 +286,7 @@ COPY slurmd.service /etc/systemd/system/slurmd.service.d/local.conf
 COPY slurmrestd.service /etc/systemd/system/slurmrestd.service.d/local.conf
 COPY postfix.service /etc/systemd/system/postfix.service.d/local.conf
 COPY containers.conf /etc/containers/containers.conf
+COPY storage.conf /etc/containers/storage.conf
 COPY policy.json /etc/containers/policy.json
 RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix && \
 	systemctl disable dnf-makecache.timer && \
