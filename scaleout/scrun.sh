@@ -2,4 +2,4 @@
 
 echo "$@" | systemd-cat -t scrun-trace
 
-exec /usr/local/sbin/scrun "$@"
+exec /usr/local/bin/scrun "$@"
