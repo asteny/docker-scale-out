@@ -210,9 +210,6 @@ RUN for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma;
 RUN usermod -G managers fred && \
 	usermod -G managers barney
 
-COPY scrun.sh /usr/local/bin/scrun
-RUN chmod 0755 /usr/local/bin/scrun
-
 #disable ssh host auth checks
 RUN echo -e '\nNoHostAuthenticationForLocalhost=yes\nStrictHostKeyChecking=no' >> /etc/ssh/ssh_config && \
 	echo -e '\nAddressFamily any\nUseDNS no' >> /etc/ssh/sshd_config
