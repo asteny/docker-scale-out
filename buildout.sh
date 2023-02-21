@@ -3,8 +3,12 @@ unset MAC
 [[ $OSTYPE == 'darwin'* ]] && MAC=1
 
 #only mount cgroups with v1
+#https://github.com/jepsen-io/jepsen/issues/532#issuecomment-1128067136
 [ ! -f /sys/fs/cgroup/cgroup.controllers ] && CGROUP_MNTS="
       - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
+" || CGROUP_MNTS="
+      - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
+      - /sys/fs/cgroup/docker.slice/:/sys/fs/cgroup/docker.slice/:rw
 "
 
 if [ $MAC ]
@@ -122,9 +126,6 @@ SYSDFSMOUNTS="
       - /run/
       - /run/lock/
       - /etc/localtime:/etc/localtime:ro
-      - /sys/:/sys/:ro
-      - /sys/firmware
-      - /sys/kernel
 $CGROUP_MNTS
       - /sys/fs/fuse/:/sys/fs/fuse/
       - /var/lib/journal
