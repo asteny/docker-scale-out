@@ -4,11 +4,27 @@ unset MAC
 
 #only mount cgroups with v1
 #https://github.com/jepsen-io/jepsen/issues/532#issuecomment-1128067136
-[ ! -f /sys/fs/cgroup/cgroup.controllers ] && CGROUP_MNTS="
+[ ! -f /sys/fs/cgroup/cgroup.controllers ] && SYSDFSMOUNTS="
+      - /dev/log:/dev/log
+      - /etc/localtime:/etc/localtime:ro
+      - /run/
+      - /run/lock/
       - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
-" || CGROUP_MNTS="
-      - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
+      - /sys/fs/fuse/:/sys/fs/fuse/:rw
+      - /sys/:/sys/:ro
+      - /tmp/
+      - /var/lib/journal
+" || SYSDFSMOUNTS="
+      - /dev/log:/dev/log
+      - /etc/localtime:/etc/localtime:ro
+      - /run/
+      - /run/lock/
+      - /sys/
       - /sys/fs/cgroup/docker.slice/:/sys/fs/cgroup/docker.slice/:rw
+      - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
+      - /sys/fs/fuse/:/sys/fs/fuse/:rw
+      - /tmp/
+      - /var/lib/journal
 "
 
 if [ $MAC ]
@@ -121,15 +137,6 @@ LOGGING="
       - seccomp:unconfined
       - apparmor:unconfined
 "
-SYSDFSMOUNTS="
-      - /tmp/
-      - /run/
-      - /run/lock/
-      - /etc/localtime:/etc/localtime:ro
-$CGROUP_MNTS
-      - /sys/fs/fuse/:/sys/fs/fuse/
-      - /var/lib/journal
-"
 
 XDMOD="
   xdmod:
@@ -148,18 +155,7 @@ XDMOD="
         ipv4_address: ${SUBNET}.1.22
         ipv6_address: ${SUBNET6}1:22
     volumes:
-      - /dev/log:/dev/log
-# would use SYSDFSMOUNTS here but sysd in cent7 cant handle cgroup/systemd mount
-      - /tmp/
-      - /run/
-      - /run/lock/
-      - /etc/localtime:/etc/localtime:ro
-      - /sys/:/sys/:ro
-      - /sys/firmware
-      - /sys/kernel
-$CGROUP_MNTS
-      - /sys/fs/fuse/:/sys/fs/fuse/
-      - /var/lib/journal
+$SYSDFSMOUNTS
       - xdmod:/xdmod/
 $XDMOD_PORTS
 $LOGGING
@@ -259,7 +255,6 @@ $HOSTLIST
     volumes:
       - root-home:/root
       - etc-slurm:/etc/slurm
-      - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
 $SYSDFSMOUNTS
@@ -284,7 +279,6 @@ $HOSTLIST
       - slurmctld:/var/spool/slurm
       - etc-ssh:/etc/ssh
       - etc-slurm:/etc/slurm
-      - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - auth:/auth/
       - xdmod:/xdmod/
@@ -312,7 +306,6 @@ $HOSTLIST
       - etc-slurm:/etc/slurm
       - home:/home/
       - slurmctld:/var/spool/slurm
-      - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
 $SYSDFSMOUNTS
@@ -339,7 +332,6 @@ $HOSTLIST
       - etc-slurm:/etc/slurm
       - home:/home/
       - slurmctld:/var/spool/slurm
-      - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
       - /var/lib/containers
@@ -378,7 +370,6 @@ cat <<EOF
       - etc-ssh:/etc/ssh
       - etc-slurm:/etc/slurm
       - home:/home/
-      - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
       - container-shared:/srv/containers
@@ -417,7 +408,6 @@ done
       - etc-ssh:/etc/ssh
       - etc-slurm:/etc/slurm
       - home:/home/
-      - /dev/log:/dev/log
       - mail:/var/spool/mail/
       - src:/usr/local/src/
       - container-shared:/srv/containers
@@ -607,7 +597,6 @@ $LOGGING
     volumes:
       - etc-ssh:/etc/ssh
       - etc-slurm:/etc/slurm
-      - /dev/log:/dev/log
 $SYSDFSMOUNTS
 $LOGGING
     depends_on:
