@@ -9,9 +9,9 @@ unset MAC
       - /etc/localtime:/etc/localtime:ro
       - /run/
       - /run/lock/
+      - /sys/:/sys/:ro
       - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
       - /sys/fs/fuse/:/sys/fs/fuse/:rw
-      - /sys/:/sys/:ro
       - /tmp/
       - /var/lib/journal
 " || SYSDFSMOUNTS="
@@ -20,8 +20,8 @@ unset MAC
       - /run/
       - /run/lock/
       - /sys/
-      - /sys/fs/cgroup/docker.slice/:/sys/fs/cgroup/docker.slice/:rw
       - /sys/fs/cgroup/:/sys/fs/cgroup/:ro
+      - /sys/fs/cgroup/docker.slice/:/sys/fs/cgroup/docker.slice/:rw
       - /sys/fs/fuse/:/sys/fs/fuse/:rw
       - /tmp/
       - /var/lib/journal
