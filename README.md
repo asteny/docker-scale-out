@@ -256,6 +256,22 @@ CPUAccounting=true
 MemoryAccounting=true
 ```
 
+/usr/lib/systemd/system/docker.service.d/local.conf:
+```
+[Service]
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+Delegate=yes
+```
+
+Activate the changes:
+```
+systemctl daemon-reload
+systemctl restart docker.slice docker
+```
+
 ## Kernel arguments to select cgroup version
 
 Run with Cgroup v2:
