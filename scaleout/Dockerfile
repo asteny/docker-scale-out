@@ -236,6 +236,9 @@ RUN awk '{if (match($1, /^(passwd|group)/)) {print $1, "slurm", $2, $3} else {pr
 	echo -e "\nalias l='ls -alF'\n" >> /etc/bashrc && \
 	mandb && \
 	mkdir -p -m 0777 /lab_scripts
+RUN git clone --depth 1 --single-branch -b v1.0.5 https://github.com/CLIP-HPC/SlurmCommander.git /usr/local/src/slurmcommander/ && \
+	cd /usr/local/src/slurmcommander/ && make build && make install && mkdir -p /etc/scom && \
+	echo 'prefix="/usr/local/bin"' > /etc/scom/scom.conf && cp scom /usr/local/bin/scom
 
 COPY my.cnf /etc/
 RUN sed -e "s#{SUBNET}#${SUBNET}#g" -i /etc/my.cnf && \
