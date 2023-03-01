@@ -283,13 +283,14 @@ COPY resume.node.sh /usr/local/sbin/
 COPY suspend.node.sh /usr/local/sbin/
 RUN chmod 0755 /usr/local/sbin/{resume.node.sh,suspend.node.sh} && \
 	mkdir -p /etc/systemd/system/{postfix,slurmctld,slurmdbd,slurmd,slurmrestd}.service.d
+COPY slurmd.slice /etc/systemd/system/slurmd.slice
 COPY slurmdbd.service /etc/systemd/system/slurmdbd.service.d/local.conf
 COPY slurmctld.service /etc/systemd/system/slurmctld.service.d/local.conf
 COPY slurmd.service /etc/systemd/system/slurmd.service.d/local.conf
 COPY slurmrestd.service /etc/systemd/system/slurmrestd.service.d/local.conf
 COPY postfix.service /etc/systemd/system/postfix.service.d/local.conf
 COPY podman-containers /etc/containers/
-RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix && \
+RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix slurmd.slice && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
 COPY patch /usr/local/src/slurm/patch
