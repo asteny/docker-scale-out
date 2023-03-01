@@ -254,6 +254,7 @@ Before=slices.target
 [Slice]
 CPUAccounting=true
 MemoryAccounting=true
+Delegate=yes
 ```
 
 /usr/lib/systemd/system/docker.service.d/local.conf:
