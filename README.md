@@ -227,6 +227,9 @@ export DISABLE_XDMOD=1
 
 ## Docker may have issues with Cgroup v2
 
+Make sure the host machine is running CgroupV2 and not hybrid mode:
+	https://slurm.schedmd.com/faq.html#cgroupv2
+
 Add these settings to the docker configuration: /etc/docker/daemon.json
 ```
 {
@@ -271,16 +274,4 @@ Activate the changes:
 ```
 systemctl daemon-reload
 systemctl restart docker.slice docker
-```
-
-## Kernel arguments to select cgroup version
-
-Run with Cgroup v2:
-```
-GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 systemd.legacy_systemd_cgroup_controller=0"
-```
-
-Run with Cgroup v1:
-```
-GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=0 systemd.legacy_systemd_cgroup_controller=0"
 ```
