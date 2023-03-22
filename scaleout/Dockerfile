@@ -25,7 +25,8 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	python3-virtualenv python3-setuptools-wheel python3-pip-wheel \
 	python3-urllib3 python3-six iproute procps-ng \
 	lua-json.noarch rsync crun python3-requests go \
-	gpgme-devel libseccomp-devel libassuan-devel dbus-devel
+	gpgme-devel libseccomp-devel libassuan-devel dbus-devel \
+	bash-completion
 RUN git clone --depth 1 --single-branch -b v3.9.2 https://github.com/luarocks/luarocks.git /usr/local/src/luarocks/
 WORKDIR /usr/local/src/luarocks/
 RUN ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
@@ -64,7 +65,8 @@ RUN ./configure --enable-slurmrestd --enable-multiple-slurmd --enable-memory-lea
 	--sharedstatedir=/run/slurm/ \
 	--enable-pam --sysconfdir=/etc/slurm --with-hdf5=/usr/local/bin/h5cc >/dev/null && \
 	make -j >/dev/null && make install >/dev/null && make -j install-contrib >/dev/null && \
-	cd contribs && make install
+	cd contribs && make install && \
+	ln -nfs /usr/local/src/slurm/contribs/slurm_completion_help/slurm_completion.sh /etc/bash_completion.d/slurm_completion.sh
 RUN /usr/sbin/groupadd -r slurm -g 1001 && \
 	/usr/sbin/useradd -c "scheduler daemon" -d "/usr/local/src/slurm/testsuite/expect" -g slurm -s /bin/bash -u 1001 -r slurm && \
 	/usr/sbin/groupadd -r slurmrestd -g 1002 && \
