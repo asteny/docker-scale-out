@@ -10,5 +10,5 @@
                                "LD_LIBRARY_PATH=/lib/:/lib64/:/usr/local/lib"
                        ]
        },
-       "script": "#!/bin/bash\n sleep 100"
+       "script": "#!/bin/bash\nsrun sleep 100"
 }
