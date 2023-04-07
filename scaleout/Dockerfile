@@ -32,7 +32,7 @@ WORKDIR /usr/local/src/luarocks/
 RUN ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
 RUN luarocks install lunajson
 RUN pip3 install certifi pip wheel setuptools markdown
-RUN git clone --depth 1 --single-branch -b v1.12.0 https://github.com/benmcollins/libjwt.git /usr/local/src/libjwt/
+RUN git clone --depth 1 --single-branch -b v1.15.2 https://github.com/benmcollins/libjwt.git /usr/local/src/libjwt/
 WORKDIR /usr/local/src/libjwt
 RUN autoreconf --force --install && ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
 RUN git clone --depth 1 --single-branch -b jq-1.6 https://github.com/stedolan/jq.git /usr/local/src/jq/
