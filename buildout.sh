@@ -188,6 +188,7 @@ networks:
     driver: bridge
     driver_opts:
         com.docker.network.bridge.enable_ip_masquerade: 'true'
+        com.docker.network.bridge.enable_icc: 'true'
     internal: false
     enable_ipv6: true
     ipam:
