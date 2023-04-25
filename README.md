@@ -139,6 +139,16 @@ make HOST=node1 bash
 ssh-keygen -f "/home/$(whoami)/.ssh/known_hosts" -R "10.11.1.5" 2>/dev/null
 ssh -o StrictHostKeyChecking=no -l fred 10.11.1.5 -X #use 'password'
 ```
+
+## To configure Federation
+
+```
+bash federation.sh
+cd federation/a
+make bash
+sacctmgr add federation scaleout cluster=a,b,c
+```
+
 ## IPv6 configuration
 
 IPv6 must be configured in docker: https://docs.docker.com/config/daemon/ipv6/
