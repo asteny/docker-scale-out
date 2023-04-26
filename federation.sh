@@ -119,7 +119,6 @@ function clean() {
 		pushd "federation/$c"
 		make clean
 		popd
-		rm -rf "federation/$c"
 	done
 }
 
