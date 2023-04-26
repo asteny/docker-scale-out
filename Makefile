@@ -6,10 +6,16 @@ SUBNET6 ?= 2001:db8:1:1::
 
 .EXPORT_ALL_VARIABLES:
 
+ifeq ($(wildcard federation),)
+
 default: ./docker-compose.yml run
 
 ./docker-compose.yml: buildout.sh
 	bash buildout.sh > ./docker-compose.yml
+
+federation-bogus:
+federation: | federation-bogus
+	bash federation.sh build
 
 build: ./docker-compose.yml
 	env BUILDKIT_PROGRESS=plain COMPOSE_HTTP_TIMEOUT=3000 docker-compose $(BUILD)
@@ -50,3 +56,24 @@ save: build
 
 load:
 	docker load -i scaleout.tar
+
+else
+
+federation: | build
+
+build:
+	bash federation.sh build
+
+stop:
+	bash federation.sh stop
+
+clean:
+	bash federation.sh clean
+
+uninstall:
+	bash federation.sh uninstall
+
+run:
+	bash federation.sh run
+
+endif
