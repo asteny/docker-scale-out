@@ -140,13 +140,24 @@ ssh-keygen -f "/home/$(whoami)/.ssh/known_hosts" -R "10.11.1.5" 2>/dev/null
 ssh -o StrictHostKeyChecking=no -l fred 10.11.1.5 -X #use 'password'
 ```
 
-## To configure Federation
+## Activate Federation mode
 
+Create federation clusters:
 ```
-bash federation.sh
+make federation
+```
+
+Notify slurmdbd to use federation:
+```
 cd federation/a
 make bash
 sacctmgr add federation scaleout cluster=a,b,c
+```
+
+## Deactivate to Federation mode
+
+```
+make uninstall
 ```
 
 ## IPv6 configuration
