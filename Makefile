@@ -59,6 +59,8 @@ load:
 
 else
 
+default: run
+
 federation: | build
 
 build:
