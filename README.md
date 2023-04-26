@@ -5,6 +5,7 @@ Docker compose cluster for testing Slurm
   * docker 2019-10-04+
   * docker-compose 1.21+
   * ssh (client)
+  * jq
 
 ## Basic Architecture
 
