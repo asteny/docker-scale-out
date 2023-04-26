@@ -147,9 +147,11 @@ function run() {
 
 [ "$1" = "build" ] && build
 
-[ ! -d ./federation ] && (echo "federation not active" && exit 0)
+[ ! -d ./federation ] && (echo "federation not active" && exit 1)
 
 [ "$1" = "stop" ] && stop
 [ "$1" = "clean" ] && clean
 [ "$1" = "uninstall" ] && uninstall
 [ "$1" = "run" -o -z "$1" ] && run
+
+exit 0
