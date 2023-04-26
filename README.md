@@ -141,7 +141,23 @@ ssh-keygen -f "/home/$(whoami)/.ssh/known_hosts" -R "10.11.1.5" 2>/dev/null
 ssh -o StrictHostKeyChecking=no -l fred 10.11.1.5 -X #use 'password'
 ```
 
-## Activate Federation mode
+## Federation Mode
+
+Federation mode will create multiple scaleout clusters inside of the federation
+directory. It will create clusters 'a', 'b', and 'c' by default. Each cluster
+can be controlled indiviually by changing into each directory. Each cluster
+directory is modified during the `make federation` and should not be reset
+using 'git reset --hard'.
+
+For example, to control cluster 'a':
+```
+make federation
+cd federation/a
+make
+make bash
+```
+
+### Activate Federation mode
 
 Create federation clusters:
 ```
@@ -155,7 +171,7 @@ make bash
 sacctmgr add federation scaleout cluster=a,b,c
 ```
 
-## Deactivate to Federation mode
+### Deactivate to Federation mode
 
 ```
 make uninstall
