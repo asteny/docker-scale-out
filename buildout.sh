@@ -35,7 +35,7 @@ else
 fi
 
 SLURM_RELEASE="${SLURM_RELEASE:-master}"
-DISTRO="almalinux"
+DISTRO="almalinux:8"
 if [ -z "$SUBNET" -o "$SUBNET" = "10.11" ]
 then
 	ES_PORTS="
