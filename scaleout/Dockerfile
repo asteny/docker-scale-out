@@ -56,7 +56,7 @@ WORKDIR /usr/local/src/pmix
 RUN ./autogen.pl && ./configure --prefix=/usr/local --sysconfdir=/etc/pmix/ --with-devel-headers --with-tests-examples  --enable-debug --with-libevent=/usr/local/ >/dev/null && \
 	make -j >/dev/null && make install >/dev/null
 RUN git clone --depth 1 --single-branch -b master https://github.com/SchedMD/slurm.git /usr/local/src/slurm && \
-	chown -R root:root /usr/local/src/slurm
+	git config --global --add safe.directory /usr/local/src/slurm
 WORKDIR /usr/local/src/slurm
 RUN git config --global user.email "you@example.com" && \
 	git config --global user.name "scale out" && \
