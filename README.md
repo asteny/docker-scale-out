@@ -3,7 +3,7 @@ Docker compose cluster for testing Slurm
 
 ## Prerequisites
   * docker 2019-10-04+
-  * docker-compose 1.21+
+  * docker-compose-plugin v2.18.1+
   * ssh (client)
   * jq
 
