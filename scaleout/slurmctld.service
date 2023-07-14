@@ -1,5 +1,5 @@
 [Service]
-ExecCondition=bash -c 'exec test $(hostname -s) = "mgmtnode" -o $(hostname -s) = "mgmtnode2"'
+ExecCondition=bash -c '[[ "$(hostname -s)" =~ mgmtnode[0-9]?$ ]]'
 ExecStartPre=chown -R slurm:slurm /auth /etc/slurm/
 ExecStartPre=chmod -R 0770 /auth
 ExecStartPre=touch /var/log/slurmctld.log

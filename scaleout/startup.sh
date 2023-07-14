@@ -16,5 +16,12 @@ for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma; do
 	chown $i:users /run/user/$uid
 done
 
+ls /usr/lib/systemd/system/slurm*.service | while read s
+do
+	#We must set the cluster environment variable for all services since systemd drops it for the services
+	mkdir -p ${s}.d
+	echo -e "[Service]\nEnvironment=SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}\n" > ${s}.d/cluster.conf
+done
+
 #start systemd
 exec /lib/systemd/systemd --system --log-level=info --crash-reboot --log-target=console

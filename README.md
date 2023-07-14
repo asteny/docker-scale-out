@@ -65,10 +65,10 @@ containing list of nodes for the cluster or modifing the default generated
 "nodelist" file in the scaleout directory.
 
 The node list follows the following format with one node per line:
-> ${HOSTNAME} ${IPv4} ${IPv6}
+> ${HOSTNAME} ${CLUSTERNAME} ${IPv4} ${IPv6}
 
 Example line:
-> node00 10.11.5.0 2001:db8:1:1::5:0
+> node00 scaleout 10.11.5.0 2001:db8:1:1::5:0
 
 Note that the service nodes can not be changed and will always be placed into
 the following subnets:
@@ -143,37 +143,30 @@ ssh -o StrictHostKeyChecking=no -l fred 10.11.1.5 -X #use 'password'
 
 ## Federation Mode
 
-Federation mode will create multiple scaleout clusters inside of the federation
-directory. It will create clusters 'a', 'b', and 'c' by default. Each cluster
-can be controlled indiviually by changing into each directory. Each cluster
-directory is modified during the `make federation` and should not be reset
-using 'git reset --hard'.
+Federation mode will create multiple Slurm clusters with nodes and slurmctld
+daemons. Other nodes will be shared, such as login and slurmdbd.
 
-For example, to control cluster 'a':
+To create multiple federation clusters:
 ```
-make federation
-cd federation/a
+export FEDERATION="taco burrito quesadilla"
+make clean
+make build
 make
-make bash
 ```
 
-### Activate Federation mode
+### Activate Federation mode in Slurm
 
-Create federation clusters:
+Notify slurmdbd to use federation after building cluster:
 ```
-make federation
-```
-
-Notify slurmdbd to use federation:
-```
-cd federation/a
-make bash
-sacctmgr add federation scaleout cluster=a,b,c
+export FEDERATION="taco burrito quesadilla"
+make taco-mgmtnode bash
+sacctmgr add federation scaleout cluster=taco,burrito,quesadilla
 ```
 
 ### Deactivate to Federation mode
 
 ```
+export FEDERATION="taco burrito quesadilla"
 make uninstall
 ```
 

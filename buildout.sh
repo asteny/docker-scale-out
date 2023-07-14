@@ -76,15 +76,31 @@ NODELIST=${NODELIST:-"scaleout/nodelist"}
 
 if [ ! -f "$NODELIST" ]
 then
-	#generate list of 10 nodes
-	seq 0 9 | while read i
-	do
-		echo "$(printf "node%02d" $i) ${SUBNET}.5.${i} ${SUBNET6}5:${i}"
-	done > $NODELIST
+	if [ ! -z "$FEDERATION" ]
+	then
+		c_sub=5
+		[ -f "$NODELIST" ] && unlink "$NODELIST" 2>&1 >/dev/null
+		for c in $FEDERATION
+		do
+			#generate list of 10 nodes per cluster
+			seq 0 9 | while read i
+			do
+				echo "$(printf "$c-node%02d" $i) $c ${SUBNET}.${c_sub}.$((${i} + 10)) ${SUBNET6}${c_sub}:$((${i} + 10))"
+			done >> $NODELIST
+
+			c_sub=$((c_sub+1))
+		done
+	else
+		#generate list of 10 nodes
+		seq 0 9 | while read i
+		do
+			echo "$(printf "node%02d" $i) scaleout ${SUBNET}.5.${i} ${SUBNET6}5:${i}"
+		done > $NODELIST
+	fi
 fi
 
 unlink scaleout/hosts.nodes
-cat "$NODELIST" | while read name ip4 ip6
+cat "$NODELIST" | while read name cluster ip4 ip6
 do
 	[ ! -z "$ip4" ] && echo "$ip4 $name" >> scaleout/hosts.nodes
 	[ ! -z "$ip6" ] && echo "$ip6 $name" >> scaleout/hosts.nodes
@@ -95,10 +111,6 @@ HOSTLIST="    extra_hosts:
       - \"db:${SUBNET6}1:3\"
       - \"slurmdbd:${SUBNET}.1.2\"
       - \"slurmdbd:${SUBNET6}1:2\"
-      - \"mgmtnode:${SUBNET}.1.1\"
-      - \"mgmtnode:${SUBNET6}1:1\"
-      - \"mgmtnode2:${SUBNET}.1.4\"
-      - \"mgmtnode2:${SUBNET6}1:4\"
       - \"login:${SUBNET}.1.5\"
       - \"login:${SUBNET6}1:5\"
       - \"rest:${SUBNET}.1.6\"
@@ -122,6 +134,30 @@ HOSTLIST="    extra_hosts:
       - \"xdmod:${SUBNET}.1.22\"
       - \"xdmod:${SUBNET6}1:22\"
 "
+
+if [ ! -z "$FEDERATION" ]
+then
+	FIRST_CLUSTER="$(echo "$FEDERATION" | awk '{print $1}')"
+	FIRST_MGMTNODE="${FIRST_CLUSTER}-mgmtnode"
+	c_sub=5
+
+	for c in $FEDERATION
+	do
+		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode:${SUBNET}.${c_sub}.1\""$'\n'
+		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode:${SUBNET6}${c_sub}:1\""$'\n'
+		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode2:${SUBNET}.${c_sub}.2\""$'\n'
+		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode2:${SUBNET6}${c_sub}:2\""$'\n'
+
+		c_sub=$((c_sub + 1))
+	done
+else
+	FIRST_CLUSTER="scaleout"
+	FIRST_MGMTNODE="mgmtnode"
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET}.5.1\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET6}5:1\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET}.5.2\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET6}5:2\""$'\n'
+fi
 
 LOGGING="
     tty: true
@@ -199,8 +235,29 @@ volumes:
   root-home:
   home:
   etc-ssh:
+EOF
+
+if [ ! -z "$FEDERATION" ]
+then
+
+	for c in $FEDERATION
+	do
+		cat <<EOF
+  ${c}-etc-slurm:
+  ${c}-slurmctld:
+EOF
+	done
+
+else
+
+cat <<EOF
   etc-slurm:
   slurmctld:
+EOF
+
+fi
+
+cat <<EOF
   elastic_data01:
   elastic_data02:
   elastic_data03:
@@ -255,7 +312,7 @@ $HOSTLIST
         ipv6_address: "${SUBNET6}1:2"
     volumes:
       - root-home:/root
-      - etc-slurm:/etc/slurm
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - mail:/var/spool/mail/
       - src:/usr/local/src/
 $SYSDFSMOUNTS
@@ -263,23 +320,96 @@ $LOGGING
     depends_on:
       - "db"
 $HOSTLIST
+EOF
+
+if [ ! -z "$FEDERATION" ]
+then
+	c_sub=5
+	for c in $FEDERATION
+	do
+
+cat <<EOF
+  ${c}-mgmtnode:
+    image: scaleout:latest
+    environment:
+      - SUBNET="${SUBNET}"
+      - SUBNET6="${SUBNET6}"
+      - container=docker
+      - SLURM_FEDERATION_CLUSTER=${c}
+    hostname: ${c}-mgmtnode
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.${c_sub}.1
+        ipv6_address: ${SUBNET6}${c_sub}:1
+    volumes:
+      - root-home:/root
+      - home:/home/
+      - ${c}-slurmctld:/var/spool/slurm
+      - etc-ssh:/etc/ssh
+      - ${c}-etc-slurm:/etc/slurm
+      - mail:/var/spool/mail/
+      - auth:/auth/
+      - xdmod:/xdmod/
+      - src:/usr/local/src/
+$SYSDFSMOUNTS
+$CLOUD_MOUNTS
+$LOGGING
+    depends_on:
+      - "slurmdbd"
+$HOSTLIST
+  ${c}-mgmtnode2:
+    image: scaleout:latest
+    environment:
+      - SUBNET="${SUBNET}"
+      - SUBNET6="${SUBNET6}"
+      - container=docker
+      - SLURM_FEDERATION_CLUSTER=${c}
+    hostname: ${c}-mgmtnode2
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.${c_sub}.4
+        ipv6_address: ${SUBNET6}${c_sub}:4
+    volumes:
+      - root-home:/root
+      - etc-ssh:/etc/ssh
+      - ${c}-etc-slurm:/etc/slurm
+      - home:/home/
+      - ${c}-slurmctld:/var/spool/slurm
+      - mail:/var/spool/mail/
+      - src:/usr/local/src/
+$SYSDFSMOUNTS
+$CLOUD_MOUNTS
+$LOGGING
+    depends_on:
+      - "slurmdbd"
+      - "${c}-mgmtnode"
+$HOSTLIST
+EOF
+
+		c_sub=$((c_sub+1))
+	done
+
+else
+
+cat <<EOF
   mgmtnode:
     image: scaleout:latest
     environment:
       - SUBNET="${SUBNET}"
       - SUBNET6="${SUBNET6}"
       - container=docker
+      - SLURM_FEDERATION_CLUSTER=${FIRST_CLUSTER}
     hostname: mgmtnode
     networks:
       internal:
-        ipv4_address: ${SUBNET}.1.1
-        ipv6_address: ${SUBNET6}1:1
+        ipv4_address: ${SUBNET}.5.1
+        ipv6_address: ${SUBNET6}5:1
     volumes:
       - root-home:/root
       - home:/home/
       - slurmctld:/var/spool/slurm
       - etc-ssh:/etc/ssh
-      - etc-slurm:/etc/slurm
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - mail:/var/spool/mail/
       - auth:/auth/
       - xdmod:/xdmod/
@@ -296,15 +426,16 @@ $HOSTLIST
       - SUBNET="${SUBNET}"
       - SUBNET6="${SUBNET6}"
       - container=docker
+      - SLURM_FEDERATION_CLUSTER=${FIRST_CLUSTER}
     hostname: mgmtnode2
     networks:
       internal:
-        ipv4_address: ${SUBNET}.1.4
-        ipv6_address: ${SUBNET6}1:4
+        ipv4_address: ${SUBNET}.5.4
+        ipv6_address: ${SUBNET6}5:4
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
-      - etc-slurm:/etc/slurm
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - home:/home/
       - slurmctld:/var/spool/slurm
       - mail:/var/spool/mail/
@@ -316,6 +447,11 @@ $LOGGING
       - "slurmdbd"
       - "mgmtnode"
 $HOSTLIST
+EOF
+
+fi #end mgmtnode creation
+
+cat <<EOF
   login:
     image: scaleout:latest
     environment:
@@ -330,9 +466,8 @@ $HOSTLIST
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
-      - etc-slurm:/etc/slurm
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - home:/home/
-      - slurmctld:/var/spool/slurm
       - mail:/var/spool/mail/
       - src:/usr/local/src/
       - /var/lib/containers
@@ -343,10 +478,14 @@ $LOGGING
 $HOSTLIST
 EOF
 
-lastname="mgmtnode"
+lastcluster="$FIRST_CLUSTER"
+lastname="$FIRST_MGMTNODE"
 oi=0
-cat "$NODELIST" | while read name ip4 ip6
+cat "$NODELIST" | while read name cluster ip4 ip6
 do
+	[ "$cluster" != "$lastcluster" ] && lastname="${cluster}-mgmtnode"
+	lastcluster="$cluster"
+
 	oi=$(($oi + 1))
 	i=$(($i + 1))
 
@@ -361,6 +500,7 @@ cat <<EOF
       - SUBNET="${SUBNET}"
       - SUBNET6="${SUBNET6}"
       - container=docker
+      - SLURM_FEDERATION_CLUSTER=${cluster}
     hostname: $name
     networks:
       internal:
@@ -369,7 +509,7 @@ cat <<EOF
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
-      - etc-slurm:/etc/slurm
+      - ${cluster}-etc-slurm:/etc/slurm
       - home:/home/
       - mail:/var/spool/mail/
       - src:/usr/local/src/
@@ -407,7 +547,7 @@ done
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
-      - etc-slurm:/etc/slurm
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - home:/home/
       - mail:/var/spool/mail/
       - src:/usr/local/src/
@@ -597,11 +737,11 @@ $LOGGING
         ipv6_address: ${SUBNET6}1:6
     volumes:
       - etc-ssh:/etc/ssh
-      - etc-slurm:/etc/slurm
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
 $SYSDFSMOUNTS
 $LOGGING
     depends_on:
-      - "mgmtnode"
+      - "${FIRST_MGMTNODE}"
 $HOSTLIST
   proxy:
     build:
