@@ -251,7 +251,7 @@ EOF
 else
 
 cat <<EOF
-  etc-slurm:
+  scaleout-etc-slurm:
   slurmctld:
 EOF
 
