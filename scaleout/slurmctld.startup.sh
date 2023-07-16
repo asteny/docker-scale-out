@@ -28,7 +28,7 @@ then
 	if [ ! -s /etc/slurm/nodes.conf ]
 	then
 		props="$(slurmd -C | head -1 | sed "s#NodeName=$(hostname -s) ##g")"
-		echo "NodeName=DEFAULT $props Gres=gpu:gtx:3" > /etc/slurm/nodes.conf
+		echo "NodeName=DEFAULT $props Gres=gpu:gtx:3 State=UNKNOWN" > /etc/slurm/nodes.conf
 
 		cat /etc/nodelist | while read name cluster ip4 ip6
 		do
