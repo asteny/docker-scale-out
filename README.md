@@ -149,6 +149,7 @@ daemons. Other nodes will be shared, such as login and slurmdbd.
 To create multiple federation clusters:
 ```
 export FEDERATION="taco burrito quesadilla"
+echo "FederationParameters=fed_display" >> scaleout/slurm/slurm.conf
 make clean
 make build
 make
