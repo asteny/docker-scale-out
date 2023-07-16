@@ -94,7 +94,7 @@ then
 		#generate list of 10 nodes
 		seq 0 9 | while read i
 		do
-			echo "$(printf "node%02d" $i) scaleout ${SUBNET}.5.${i} ${SUBNET6}5:${i}"
+			echo "$(printf "node%02d" $i) scaleout ${SUBNET}.5.$((${i} + 10)) ${SUBNET6}5:$((${i} + 10))"
 		done > $NODELIST
 	fi
 fi
