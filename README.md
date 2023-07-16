@@ -169,6 +169,7 @@ sacctmgr add federation scaleout cluster=taco,burrito,quesadilla
 ```
 export FEDERATION="taco burrito quesadilla"
 make uninstall
+truncate -s0 scaleout/nodelist
 ```
 
 ## IPv6 configuration

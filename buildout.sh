@@ -74,7 +74,7 @@ SUBNET=${SUBNET:-"10.11"}
 SUBNET6=${SUBNET6:-"2001:db8:1:1::"}
 NODELIST=${NODELIST:-"scaleout/nodelist"}
 
-if [ ! -f "$NODELIST" ]
+if [ ! -s "$NODELIST" ]
 then
 	if [ ! -z "$FEDERATION" ]
 	then
