@@ -94,7 +94,7 @@ then
 		#generate list of 10 nodes
 		seq 0 9 | while read i
 		do
-			echo "$(printf "node%02d" $i) scaleout ${SUBNET}.5.$((${i} + 10)) ${SUBNET6}5:$((${i} + 10))"
+			echo "$(printf "node%02d" $i) cluster ${SUBNET}.5.$((${i} + 10)) ${SUBNET6}5:$((${i} + 10))"
 		done > $NODELIST
 	fi
 fi
@@ -151,7 +151,7 @@ then
 		c_sub=$((c_sub + 1))
 	done
 else
-	FIRST_CLUSTER="scaleout"
+	FIRST_CLUSTER="cluster"
 	FIRST_MGMTNODE="mgmtnode"
 	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET}.5.1\""$'\n'
 	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET6}5:1\""$'\n'
@@ -251,7 +251,7 @@ EOF
 else
 
 cat <<EOF
-  scaleout-etc-slurm:
+  cluster-etc-slurm:
   slurmctld:
 EOF
 
