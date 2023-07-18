@@ -160,7 +160,7 @@ make
 Notify slurmdbd to use federation after building cluster:
 ```
 export FEDERATION="taco burrito quesadilla"
-make taco-mgmtnode bash
+make HOST=taco-mgmtnode bash
 sacctmgr add federation scaleout cluster=taco,burrito,quesadilla
 ```
 
