@@ -150,6 +150,7 @@ To create multiple federation clusters:
 ```
 export FEDERATION="taco burrito quesadilla"
 echo "FederationParameters=fed_display" >> scaleout/slurm/slurm.conf
+truncate -s0 scaleout/nodelist
 make clean
 make build
 make
