@@ -153,10 +153,10 @@ then
 else
 	FIRST_CLUSTER="cluster"
 	FIRST_MGMTNODE="mgmtnode"
-	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET}.5.1\""$'\n'
-	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET6}5:1\""$'\n'
-	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET}.5.2\""$'\n'
-	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET6}5:2\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET}.1.1\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET6}1:1\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET}.1.4\""$'\n'
+	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET6}1:4\""$'\n'
 fi
 
 LOGGING="
