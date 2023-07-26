@@ -26,7 +26,7 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	python3-urllib3 python3-six iproute procps-ng \
 	lua-json.noarch rsync crun python3-requests go \
 	gpgme-devel libseccomp-devel libassuan-devel dbus-devel \
-	bash-completion
+	bash-completion tzdata-java
 RUN git clone --depth 1 --single-branch -b v3.9.2 https://github.com/luarocks/luarocks.git /usr/local/src/luarocks/
 WORKDIR /usr/local/src/luarocks/
 RUN ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
