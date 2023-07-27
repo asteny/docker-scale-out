@@ -402,8 +402,8 @@ cat <<EOF
     hostname: mgmtnode
     networks:
       internal:
-        ipv4_address: ${SUBNET}.5.1
-        ipv6_address: ${SUBNET6}5:1
+        ipv4_address: ${SUBNET}.1.1
+        ipv6_address: ${SUBNET6}1:1
     volumes:
       - root-home:/root
       - home:/home/
@@ -430,8 +430,8 @@ $HOSTLIST
     hostname: mgmtnode2
     networks:
       internal:
-        ipv4_address: ${SUBNET}.5.4
-        ipv6_address: ${SUBNET6}5:4
+        ipv4_address: ${SUBNET}.1.4
+        ipv6_address: ${SUBNET6}1:4
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
