@@ -324,6 +324,8 @@ EOF
 
 if [ ! -z "$FEDERATION" ]
 then
+	LOGIN_MOUNTS=
+
 	c_sub=5
 	for c in $FEDERATION
 	do
@@ -390,6 +392,8 @@ EOF
 	done
 
 else
+
+	LOGIN_MOUNTS="      - slurmctld:/var/spool/slurm"
 
 cat <<EOF
   mgmtnode:
@@ -468,6 +472,7 @@ cat <<EOF
       - etc-ssh:/etc/ssh
       - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - home:/home/
+$LOGIN_MOUNTS
       - mail:/var/spool/mail/
       - src:/usr/local/src/
       - /var/lib/containers
