@@ -9,7 +9,7 @@ RUN dnf -y install 'dnf-command(config-manager)'
 RUN dnf -y install dnf-plugins-core
 RUN dnf config-manager --set-enabled powertools
 RUN dnf -y install --allowerasing --exclude google-chrome-* \
-	rpm gcc automake make perl-macros.x86_64 rpm-build passwd \
+	rpm gcc automake make perl-macros rpm-build passwd \
 	readline-devel openssl-devel openssl pam-devel \
 	perl-ExtUtils-MakeMaker.noarch mariadb-devel mariadb \
 	glib2-devel gtk2-devel libtool git vim gdb hostname \
@@ -21,7 +21,7 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	lua-devel xauth man mailx postfix python3 http-parser-devel \
 	libyaml-devel mlocate gettext-devel texinfo java-11-openjdk \
 	systemd net-tools socat jq squashfs-tools fuse-overlayfs pigz \
-	fuse-devel.x86_64 rpcgen.x86_64 cronie valgrind-devel \
+	fuse-devel rpcgen cronie valgrind-devel \
 	python3-virtualenv python3-setuptools-wheel python3-pip-wheel \
 	python3-urllib3 python3-six iproute procps-ng \
 	lua-json.noarch rsync crun python3-requests go \
