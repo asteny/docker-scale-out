@@ -1,7 +1,7 @@
 HOST ?= mgmtnode
 BUILD ?= up --build --remove-orphans -d
 DC ?= $(shell docker compose version 2>&1 >/dev/null && echo "docker compose" || echo "docker-compose")
-IMAGES := $(shell $(DC) -compose config | awk '{if ($$1 == "image:") print $$2;}' | sort | uniq)
+IMAGES := $(shell $(DC) config | awk '{if ($$1 == "image:") print $$2;}' | sort | uniq)
 SUBNET ?= 10.11
 SUBNET6 ?= 2001:db8:1:1::
 
