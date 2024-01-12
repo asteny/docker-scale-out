@@ -16,7 +16,7 @@ build: ./docker-compose.yml
 	env BUILDKIT_PROGRESS=plain COMPOSE_HTTP_TIMEOUT=3000 $(DC) $(BUILD)
 
 stop:
-	$(DC)-compose down
+	$(DC) down
 
 set_nocache:
 	$(eval BUILD := build --no-cache)
