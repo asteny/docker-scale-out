@@ -35,6 +35,57 @@ fs.inotify.max_user_instances=65535
 fs.inotify.max_user_watches=1048576
 ```
 
+## Docker configuration required with cgroupsv2
+
+Make sure the host machine is running CgroupV2 and not hybrid mode:
+	https://slurm.schedmd.com/faq.html#cgroupv2
+
+Add these settings to the docker configuration: /etc/docker/daemon.json
+```
+{
+  "exec-opts": [
+    "native.cgroupdriver=systemd"
+  ],
+  "features": {
+    "buildkit": true
+  },
+  "experimental": true,
+  "cgroup-parent": "docker.slice",
+  "default-cgroupns-mode": "host",
+  "storage-driver": "overlay2"
+}
+```
+
+Configure systemd to allow docker to run in it's own slice to avoid systemd
+conflicting with it:
+
+/etc/systemd/system/docker.slice:
+```
+[Unit]
+Description=docker slice
+Before=slices.target
+[Slice]
+CPUAccounting=true
+MemoryAccounting=true
+Delegate=yes
+```
+
+/usr/lib/systemd/system/docker.service.d/local.conf:
+```
+[Service]
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+Delegate=yes
+```
+
+Activate the changes:
+```
+systemctl daemon-reload
+systemctl restart docker.slice docker
+```
+
 ## Basic Architecture
 
 Maria Database Node:
@@ -254,55 +305,4 @@ This is will only disable attempts to build and start the container.
 
 ```
 export DISABLE_XDMOD=1
-```
-
-## Docker may have issues with Cgroup v2
-
-Make sure the host machine is running CgroupV2 and not hybrid mode:
-	https://slurm.schedmd.com/faq.html#cgroupv2
-
-Add these settings to the docker configuration: /etc/docker/daemon.json
-```
-{
-  "exec-opts": [
-    "native.cgroupdriver=systemd"
-  ],
-  "features": {
-    "buildkit": true
-  },
-  "experimental": true,
-  "cgroup-parent": "docker.slice",
-  "default-cgroupns-mode": "host",
-  "storage-driver": "overlay2"
-}
-```
-
-Configure systemd to allow docker to run in it's own slice to avoid systemd
-conflicting with it:
-
-/etc/systemd/system/docker.slice:
-```
-[Unit]
-Description=docker slice
-Before=slices.target
-[Slice]
-CPUAccounting=true
-MemoryAccounting=true
-Delegate=yes
-```
-
-/usr/lib/systemd/system/docker.service.d/local.conf:
-```
-[Service]
-LimitNOFILE=infinity
-LimitNPROC=infinity
-LimitCORE=infinity
-TasksMax=infinity
-Delegate=yes
-```
-
-Activate the changes:
-```
-systemctl daemon-reload
-systemctl restart docker.slice docker
 ```
