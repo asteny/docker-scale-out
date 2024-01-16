@@ -3,9 +3,37 @@ Docker compose cluster for testing Slurm
 
 ## Prerequisites
   * docker 2019-10-04+
+    * IPv6 must be configured in docker: https://docs.docker.com/config/daemon/ipv6/
   * docker-compose-plugin v2.18.1+
   * ssh (client)
   * jq
+
+## Changes needed in sysctl.conf:
+```
+net.ipv4.tcp_max_syn_backlog=4096
+net.core.netdev_max_backlog=1000
+net.core.somaxconn=15000
+fs.file-max=992832
+
+# Force gc to clean-up quickly
+net.ipv4.neigh.default.gc_interval = 3600
+
+# Set ARP cache entry timeout
+net.ipv4.neigh.default.gc_stale_time = 3600
+
+# Setup DNS threshold for arp
+net.ipv4.neigh.default.gc_thresh3 = 8096
+net.ipv4.neigh.default.gc_thresh2 = 4048
+net.ipv4.neigh.default.gc_thresh1 = 1024
+
+# Increase map count for elasticsearch
+vm.max_map_count=262144
+
+# Avoid running out of file descriptors
+fs.file-max=10000000
+fs.inotify.max_user_instances=65535
+fs.inotify.max_user_watches=1048576
+```
 
 ## Basic Architecture
 
@@ -171,37 +199,6 @@ sacctmgr add federation scaleout cluster=taco,burrito,quesadilla
 export FEDERATION="taco burrito quesadilla"
 make uninstall
 truncate -s0 scaleout/nodelist
-```
-
-## IPv6 configuration
-
-IPv6 must be configured in docker: https://docs.docker.com/config/daemon/ipv6/
-
-## Changes needed for sysctl.conf to make it run:
-```
-net.ipv4.tcp_max_syn_backlog=4096
-net.core.netdev_max_backlog=1000
-net.core.somaxconn=15000
-fs.file-max=992832
-
-# Force gc to clean-up quickly
-net.ipv4.neigh.default.gc_interval = 3600
-
-# Set ARP cache entry timeout
-net.ipv4.neigh.default.gc_stale_time = 3600
-
-# Setup DNS threshold for arp
-net.ipv4.neigh.default.gc_thresh3 = 8096
-net.ipv4.neigh.default.gc_thresh2 = 4048
-net.ipv4.neigh.default.gc_thresh1 = 1024
-
-# Increase map count for elasticsearch
-vm.max_map_count=262144
-
-# Avoid running out of file descriptors
-fs.file-max=10000000
-fs.inotify.max_user_instances=65535
-fs.inotify.max_user_watches=1048576
 ```
 
 ## Caveats
