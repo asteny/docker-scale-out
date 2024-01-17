@@ -27,12 +27,7 @@ unset MAC
       - /var/lib/journal
 "
 
-if [ $MAC ]
-then
-  CACHE_DESTROYER=$(stat -f%c scaleout/patch)
-else
-  CACHE_DESTROYER=$(stat --format=%Y scaleout/patch)
-fi
+CACHE_DESTROYER="$(find scaleout/patch.d -type f -name '*.patch' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
 
 SLURM_RELEASE="${SLURM_RELEASE:-master}"
 DISTRO="almalinux:8"

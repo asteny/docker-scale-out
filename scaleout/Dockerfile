@@ -296,13 +296,13 @@ COPY podman-containers /etc/containers/
 RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix slurmd.slice && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
-COPY patch /usr/local/src/slurm/patch
-RUN bash -c "if [ -s /usr/local/src/slurm/patch ]; then \
+COPY patch.d /usr/local/src/slurm/patch.d
+RUN bash -c "if [ -s /usr/local/src/slurm/patch.d/*.patch ]; then \
 	cd /usr/local/src/slurm/; \
 	echo $CACHE_DESTROYER >/dev/null; \
 	git fetch -f origin ${SLURM_RELEASE}:${SLURM_RELEASE} && \
 	git reset --hard ${SLURM_RELEASE} && \
-	git am -3 --exclude=NEWS /usr/local/src/slurm/patch && \
+	find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | sort -z | xargs -t -0 -r -n1 git am -3 --exclude=NEWS && \
 	make -j >/dev/null && make install >/dev/null; fi"
 
 COPY nodelist /etc/nodelist
