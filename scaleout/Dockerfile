@@ -237,6 +237,7 @@ RUN awk '{if (match($1, /^(passwd|group)/)) {print $1, "slurm", $2, $3} else {pr
 	echo -e "\nalias cls='clear'\n" >> /etc/bashrc && \
 	echo -e "\nalias ..='cd ..'\n" >> /etc/bashrc && \
 	echo -e "\nalias l='ls -alF'\n" >> /etc/bashrc && \
+	echo -e "\nalias w=\"watch \\\"sinfo -Nel -pdebug ; squeue -a -o '%.18i %.9P %.8j %.8u %.8T %.10M %.9l %.6D %R %Q' | column -t\\\"\"\n" >> /etc/bashrc && \
 	mandb && \
 	mkdir -p -m 0777 /lab_scripts
 RUN git clone --depth 1 --single-branch -b v1.0.5 https://github.com/CLIP-HPC/SlurmCommander.git /usr/local/src/slurmcommander/ && \
