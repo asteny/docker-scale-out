@@ -2,7 +2,7 @@
 Docker compose cluster for testing Slurm
 
 ## Prerequisites
-  * docker 2019-10-04+
+  * docker (25.x.x+ with cgroupsv2 or 24.x.x with cgroupsv1)
     * IPv6 must be configured in docker: https://docs.docker.com/config/daemon/ipv6/
   * docker-compose-plugin v2.18.1+
   * ssh (client)
