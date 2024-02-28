@@ -59,7 +59,7 @@ while True:
                 #increase node count by 1
                 requested_nodes.add(op[1])
                 active_nodes += 1
-                os.system("%s up --scale cloud=%s --no-recreate -d" % active_nodes)
+                os.system("%s up --scale cloud=%s --no-recreate -d" % (dcompose, active_nodes))
                 connection.sendall(b'ACK')
             elif op[0] == "whoami":
                 found=False
