@@ -39,7 +39,7 @@ cloud:
 	touch cloud_socket
 	test -f ./docker-compose.yml && unlink ./docker-compose.yml || true
 	env CLOUD=1 bash buildout.sh > ./docker-compose.yml
-	python3 cloud_monitor.py3 $(DC) up --build --remove-orphans --scale cloud=0 -d
+	python3 ./cloud_monitor.py3 "$(DC)"
 	test -f ./docker-compose.yml && unlink ./docker-compose.yml || true
 	test -f cloud_socket && unlink cloud_socket || true
 

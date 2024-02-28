@@ -15,6 +15,7 @@ active_nodes = 0
 server_address = 'cloud_socket'
 requested_nodes = set()
 node_names = dict() # docker tag -> requested hostname
+dcompose = sys.argv[1]
 
 # Make sure the socket does not already exist
 try:
@@ -32,8 +33,7 @@ os.chmod(server_address, stat.S_IROTH | stat.S_IWOTH)
 # Listen for incoming connections
 sock.listen(1)
 
-sys.argv.pop(0)
-os.system("docker-compose up --remove-orphans --build --scale cloud=%s --no-recreate -d" % active_nodes)
+os.system("%s up --remove-orphans --build --scale cloud=%s --no-recreate -d" % (dcompose, active_nodes))
 
 while True:
     connection=None
@@ -59,7 +59,7 @@ while True:
                 #increase node count by 1
                 requested_nodes.add(op[1])
                 active_nodes += 1
-                os.system("docker-compose up --scale cloud=%s --no-recreate -d" % active_nodes)
+                os.system("%s up --scale cloud=%s --no-recreate -d" % active_nodes)
                 connection.sendall(b'ACK')
             elif op[0] == "whoami":
                 found=False
