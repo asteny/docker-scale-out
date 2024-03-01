@@ -300,11 +300,12 @@ RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix slurmd.slice &
 RUN touch "/tmp/$CACHE_DESTROYER"
 COPY patch.d /usr/local/src/slurm/patch.d
 RUN find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | \
-	sort -z > /usr/local/src/slurm/patch.list && bash -c "\
+	sort -z > /usr/local/src/slurm/patch.list && \
+	env SLURM_RELEASE="${SLURM_RELEASE}" bash -c "\
 	if [ -s /usr/local/src/slurm/patch.list ]; then \
 		cd /usr/local/src/slurm/; \
-		git fetch -f origin ${SLURM_RELEASE}:${SLURM_RELEASE} && \
-		git reset --hard ${SLURM_RELEASE} && \
+		git fetch -f origin \${SLURM_RELEASE}:\${SLURM_RELEASE} && \
+		git reset --hard \${SLURM_RELEASE} && \
 		xargs -t -0 -r -n1 git am -3 --ignore-space-change --exclude=NEWS < /usr/local/src/slurm/patch.list && \
 		make -j >/dev/null && make install >/dev/null; \
 	fi"
