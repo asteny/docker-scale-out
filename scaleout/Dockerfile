@@ -18,15 +18,18 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	rdma-core-devel gcc-c++ flex libgcrypt-devel gcc-gfortran \
 	strace ltrace gdb valgrind wget cmake sudo jansson-devel \
 	openssh-server pam-devel xterm oniguruma-devel \
-	lua-devel xauth man mailx postfix python3 http-parser-devel \
+	lua-devel xauth man mailx postfix http-parser-devel \
 	libyaml-devel mlocate gettext-devel texinfo java-11-openjdk \
 	systemd net-tools socat jq squashfs-tools fuse-overlayfs pigz \
-	fuse-devel rpcgen cronie valgrind-devel \
-	python3-virtualenv python3-setuptools-wheel python3-pip-wheel \
-	python3-urllib3 python3-six iproute procps-ng \
-	lua-json.noarch rsync crun python3-requests go \
-	gpgme-devel libseccomp-devel libassuan-devel dbus-devel \
-	bash-completion tzdata-java
+	fuse-devel rpcgen cronie valgrind-devel iproute procps-ng \
+	lua-json.noarch rsync crun go gpgme-devel libseccomp-devel \
+	libassuan-devel dbus-devel bash-completion tzdata-java \
+	python3-setuptools-wheel python3-virtualenv python3-urllib3 \
+	python3-six python3-requests python3-pexpect \
+	python3.11 python3.11-pip python3.11-pytest
+RUN alternatives --set python3 /usr/bin/python3.11 && \
+	ln -s $(which pytest-3.11) /usr/bin/pytest-3 && \
+	ln -s /usr/lib/python3.6/site-packages/pexpect/ /usr/lib/python3.11/site-packages/pexpect
 RUN git clone --depth 1 --single-branch -b v3.9.2 https://github.com/luarocks/luarocks.git /usr/local/src/luarocks/
 WORKDIR /usr/local/src/luarocks/
 RUN ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
@@ -271,6 +274,7 @@ RUN cp /usr/local/src/slurm/etc/{slurmctld.service,slurmd.service,slurmdbd.servi
 	chown -R slurm:slurm /usr/local/src/
 
 COPY globals.local /usr/local/src/slurm/testsuite/expect/globals.local
+COPY testsuite.conf /usr/local/src/slurm/testsuite/testsuite.conf
 
 #RUN echo "define(`SMART_HOST', `login')dnl" >> /etc/mail/sendmail.mc
 RUN echo -e "/usr/local/lib\n/usr/local/lib64" >> /etc/ld.so.conf.d/usr_local_lib.conf && \
