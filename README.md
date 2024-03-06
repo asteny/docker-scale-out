@@ -236,6 +236,12 @@ make build
 make
 ```
 
+Configure Slurm for multiple federation clusters:
+```
+make HOST=quesadilla-mgmtnode bash
+sacctmgr add federation scaleout clusters=taco,burrito,quesadilla
+```
+
 ### Activate Federation mode in Slurm
 
 Notify slurmdbd to use federation after building cluster:
