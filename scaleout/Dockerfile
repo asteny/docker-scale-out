@@ -286,6 +286,7 @@ WORKDIR /root/
 ARG DOCKER_FROM
 FROM ${DOCKER_FROM} as scaleout
 ARG CACHE_DESTROYER
+ARG SLURM_CONF_SERVER
 COPY --from=base / /
 COPY dump_xdmod.sh /etc/cron.hourly/dump_xdmod.sh
 COPY resume.node.sh /usr/local/sbin/
@@ -299,6 +300,7 @@ COPY slurmd.service /etc/systemd/system/slurmd.service.d/local.conf
 COPY slurmrestd.service /etc/systemd/system/slurmrestd.service.d/local.conf
 COPY postfix.service /etc/systemd/system/postfix.service.d/local.conf
 COPY podman-containers /etc/containers/
+RUN echo "Environment=SLURM_CONF_SERVER=${SLURM_CONF_SERVER}" >>/etc/systemd/system/slurmd.service.d/local.conf
 RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix slurmd.slice && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
