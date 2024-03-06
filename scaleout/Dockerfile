@@ -286,6 +286,7 @@ WORKDIR /root/
 ARG DOCKER_FROM
 FROM ${DOCKER_FROM} as scaleout
 ARG CACHE_DESTROYER
+ARG SLURM_CONF_SERVER
 COPY --from=base / /
 COPY dump_xdmod.sh /etc/cron.hourly/dump_xdmod.sh
 COPY resume.node.sh /usr/local/sbin/
