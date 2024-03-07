@@ -134,13 +134,6 @@ if [ ! -z "$FEDERATION" ]
 then
 	FIRST_CLUSTER="$(echo "$FEDERATION" | awk '{print $1}')"
 	FIRST_MGMTNODE="${FIRST_CLUSTER}-mgmtnode"
-
-	SLURM_CONF_SERVER="$(for c in $FEDERATION
-		do
-			echo "${c}-mgmtnode,"
-		done
-	)"
-
 	c_sub=5
 
 	for c in $FEDERATION
@@ -155,7 +148,6 @@ then
 else
 	FIRST_CLUSTER="cluster"
 	FIRST_MGMTNODE="mgmtnode"
-	SLURM_CONF_SERVER="mgmtnode,mgmtnode2"
 	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET}.1.1\""$'\n'
 	HOSTLIST="${HOSTLIST}      - \"mgmtnode:${SUBNET6}1:1\""$'\n'
 	HOSTLIST="${HOSTLIST}      - \"mgmtnode2:${SUBNET}.1.4\""$'\n'
@@ -246,6 +238,7 @@ then
 	for c in $FEDERATION
 	do
 		cat <<EOF
+  ${c}-etc-slurm:
   ${c}-slurmctld:
 EOF
 	done
@@ -276,7 +269,6 @@ services:
       args:
         SUBNET: "$SUBNET"
         SUBNET6: "$SUBNET6"
-        SLURM_CONF_SERVER: $SLURM_CONF_SERVER
       network: host
     environment:
       - MYSQL_ROOT_PASSWORD=password
@@ -303,7 +295,6 @@ $HOSTLIST
         SUBNET: "$SUBNET"
         SUBNET6: "$SUBNET6"
         CACHE_DESTROYER: "$CACHE_DESTROYER"
-        SLURM_CONF_SERVER: $SLURM_CONF_SERVER
       network: host
     image: scaleout:latest
     environment:
@@ -466,7 +457,6 @@ cat <<EOF
       - SUBNET="${SUBNET}"
       - SUBNET6="${SUBNET6}"
       - container=docker
-      - SLURM_CONF_SERVER=$SLURM_CONF_SERVER
     hostname: login
     networks:
       internal:
@@ -475,6 +465,7 @@ cat <<EOF
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - home:/home/
 $LOGIN_MOUNTS
       - mail:/var/spool/mail/
@@ -510,7 +501,6 @@ cat <<EOF
       - SUBNET6="${SUBNET6}"
       - container=docker
       - SLURM_FEDERATION_CLUSTER=${cluster}
-      - SLURM_CONF_SERVER=$SLURM_CONF_SERVER
     hostname: $name
     networks:
       internal:
@@ -519,6 +509,7 @@ cat <<EOF
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
+      - ${cluster}-etc-slurm:/etc/slurm
       - home:/home/
       - mail:/var/spool/mail/
       - src:/usr/local/src/
@@ -553,10 +544,10 @@ done
       - SUBNET6="${SUBNET6}"
       - container=docker
       - CLOUD=1
-      - SLURM_CONF_SERVER=$SLURM_CONF_SERVER
     volumes:
       - root-home:/root
       - etc-ssh:/etc/ssh
+      - ${FIRST_CLUSTER}-etc-slurm:/etc/slurm
       - home:/home/
       - mail:/var/spool/mail/
       - src:/usr/local/src/
@@ -740,11 +731,6 @@ $LOGGING
   rest:
     hostname: rest
     image: scaleout:latest
-    environment:
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-      - container=docker
-      - SLURM_CONF_SERVER=$SLURM_CONF_SERVER
     networks:
       internal:
         ipv4_address: ${SUBNET}.1.6

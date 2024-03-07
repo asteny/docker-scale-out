@@ -4,9 +4,6 @@ postfix -Dv start
 systemctl enable podman
 systemctl start podman
 
-#force configless slurm
-rm -Rvf /etc/slurm/
-
 for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma; do
 	loginctl enable-linger $i
 done

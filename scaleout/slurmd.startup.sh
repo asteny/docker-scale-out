@@ -32,8 +32,10 @@ for e in $(tr "\000" "\n" < /proc/1/environ); do
         eval "export $e"
 done
 
-#Force configless
-rm -Rvf /etc/slurm
+while [ ! -s /etc/slurm/nodes.conf ]
+do
+        sleep 0.25
+done
 
 [ "$CLOUD" -a ! -f /etc/cloud-configured ] && \
 	while true
