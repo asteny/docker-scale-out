@@ -137,7 +137,7 @@ then
 
 	SLURM_CONF_SERVER="$(for c in $FEDERATION
 		do
-			echo "${c}-mgmtnode,"
+			echo -n "${c}-mgmtnode,"
 		done
 	)"
 
@@ -247,6 +247,7 @@ then
 	do
 		cat <<EOF
   ${c}-slurmctld:
+  ${c}-etc-slurm:
 EOF
 	done
 
