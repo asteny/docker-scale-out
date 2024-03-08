@@ -527,7 +527,6 @@ services:
       args:
         SUBNET: "$SUBNET"
         SUBNET6: "$SUBNET6"
-        SLURM_CONF_SERVER: $SLURM_CONF_SERVER
       network: host
     environment:
       - MYSQL_ROOT_PASSWORD=password
@@ -554,7 +553,6 @@ $HOSTLIST
         SUBNET: "$SUBNET"
         SUBNET6: "$SUBNET6"
         CACHE_DESTROYER: "$CACHE_DESTROYER"
-        SLURM_CONF_SERVER: $SLURM_CONF_SERVER
       network: host
     image: scaleout:latest
     environment:
