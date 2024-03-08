@@ -20,7 +20,7 @@ ls /usr/lib/systemd/system/slurm*.service | while read s
 do
 	#We must set the cluster environment variable for all services since systemd drops it for the services
 	mkdir -p ${s}.d
-	echo -e "[Service]\nEnvironment=SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}\n" > ${s}.d/cluster.conf
+	echo -e "[Service]\nEnvironment=SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}\nEnvironment=SLURM_CONF_SERVER=${SLURM_CONF_SERVER}\n" > ${s}.d/cluster.conf
 done
 
 #start systemd

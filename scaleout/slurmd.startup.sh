@@ -32,9 +32,16 @@ for e in $(tr "\000" "\n" < /proc/1/environ); do
         eval "export $e"
 done
 
-while [ ! -s /etc/slurm/nodes.conf ]
+# Force configless by removing copy from original docker build
+rm -Rvf /etc/slurm
+
+# Wait until slurmctld is alive before trying to start slurmd or it may error
+# out when it can't download the config
+while true
 do
-        sleep 0.25
+	sinfo >/dev/null
+	[ $? -eq 0 ] && break
+	sleep 0.25
 done
 
 [ "$CLOUD" -a ! -f /etc/cloud-configured ] && \
