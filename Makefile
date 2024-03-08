@@ -1,4 +1,4 @@
-HOST ?= mgmtnode
+HOST ?= $(shell echo "$$FEDERATION" | awk 'BEGIN {node="mgmtnode"} {if ($$1) node=$$1 "-mgmtnode"} END {print node}')
 BUILD ?= up --build --remove-orphans -d
 DC ?= $(shell docker compose version 2>&1 >/dev/null && echo "docker compose" || echo "docker-compose")
 IMAGES := $(shell $(DC) config | awk '{if ($$1 == "image:") print $$2;}' | sort | uniq)
