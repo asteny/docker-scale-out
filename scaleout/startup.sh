@@ -16,7 +16,7 @@ for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma; do
 	chown $i:users /run/user/$uid
 done
 
-ls /usr/lib/systemd/system/slurm*.service | while read s
+ls /usr/lib/systemd/system/{slurm*.service,sackd.service} | while read s
 do
 	#We must set the cluster environment variable for all services since systemd drops it for the services
 	mkdir -p ${s}.d
