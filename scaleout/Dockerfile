@@ -88,11 +88,12 @@ RUN mkdir -m 0700 -p /etc/munge/ && \
 RUN dd if=/dev/urandom bs=32 count=1 >/etc/slurm/jwt.key
 RUN chown slurm:slurm /etc/slurm/jwt.key
 RUN chmod 0600 /etc/slurm/jwt.key
-RUN dd if=/dev/urandom bs=1 count=1024 >/etc/munge/munge.key
-RUN touch /etc/munge/munge.seed
-RUN chown munge:munge -R /etc/munge
-RUN chmod 0400 /etc/munge/munge.key /etc/munge/munge.seed
-RUN chown root:root /etc/munge/ -R && chown -R munge:munge /etc/munge
+RUN dd if=/dev/urandom bs=1 count=1024 >/etc/munge/munge.key && \
+	touch /etc/munge/munge.seed && \
+	chown munge:munge -R /etc/munge && \
+	chmod 0400 /etc/munge/munge.key /etc/munge/munge.seed && \
+	chown root:root /etc/munge/ -R && \
+	chown -R munge:munge /etc/munge
 RUN git clone --depth 1 --single-branch -b pdsh-2.33 https://github.com/chaos/pdsh.git /usr/local/src/pdsh/
 WORKDIR /usr/local/src/pdsh
 RUN autoreconf -i && ./configure --without-rsh --with-ssh --prefix=/usr/local --sysconfdir=/etc/ --with-readline && make -j >/dev/null && make install >/dev/null
