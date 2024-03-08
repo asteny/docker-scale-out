@@ -142,8 +142,8 @@ then
 	do
 		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode:${SUBNET}.${c_sub}.1\""$'\n'
 		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode:${SUBNET6}${c_sub}:1\""$'\n'
-		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode2:${SUBNET}.${c_sub}.2\""$'\n'
-		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode2:${SUBNET6}${c_sub}:2\""$'\n'
+		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode2:${SUBNET}.${c_sub}.4\""$'\n'
+		HOSTLIST="${HOSTLIST}      - \"${c}-mgmtnode2:${SUBNET6}${c_sub}:4\""$'\n'
 
 		c_sub=$((c_sub + 1))
 	done
