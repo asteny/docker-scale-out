@@ -92,7 +92,7 @@ then
 	#sacctmgr -vi add user pebbles Account=bedrock DefaultAccount=bedrock admin=admin
 else
 	#wait for primary mgt node to be done starting up
-	while [ [ ! -s /etc/slurm/nodes.conf ] -o [ "$(scontrol --json ping | jq -r '.pings[0].pinged')" = "UP" ] ]
+	while [[ "$(scontrol --json ping | jq -r '.pings[0].pinged')" != "UP" ]]
 	do
 		sleep 0.25
 	done
