@@ -84,6 +84,9 @@ RUN chown slurm:slurm -R /var/spool/slurm
 RUN dd if=/dev/urandom bs=32 count=1 >/etc/slurm/jwt.key && \
 	chown slurm:slurm /etc/slurm/jwt.key && \
 	chmod 0600 /etc/slurm/jwt.key
+RUN dd if=/dev/random of=/etc/slurm/slurm.key bs=1024 count=1 >/etc/slurm/slurm.key && \
+	chown slurm:slurm /etc/slurm/slurm.key && \
+	chmod 0600 /etc/slurm/slurm.key
 RUN /usr/sbin/groupadd -r munge && \
 	/usr/sbin/useradd -c "MUNGE authentication service" -d "/usr/local/etc/munge" -g munge -s /bin/false -r munge && \
 	mkdir -m 0700 -p /etc/munge/ && \
