@@ -68,6 +68,8 @@ fi
 
 if [ "${KIBANA_PORT}" -gt 0 ]
 then
+	# Kibana only listens on IPv4 xor IPv6:
+	# https://discuss.elastic.co/t/kibana-and-ipv6/231478/4
 	KIBANA_PORTS="
     ports:
       - ${KIBANA_PORT}:5601
