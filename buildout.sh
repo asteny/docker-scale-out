@@ -231,6 +231,8 @@ then
       - discovery.seed_hosts=es02,es03
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - \"ES_JAVA_OPTS=-Xms512m -Xmx512m\"
       - SUBNET=\"${SUBNET}\"
       - SUBNET6=\"${SUBNET6}\"
@@ -255,6 +257,8 @@ $LOGGING
       - discovery.seed_hosts=es01,es03
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - \"ES_JAVA_OPTS=-Xms512m -Xmx512m\"
       - SUBNET=\"${SUBNET}\"
       - SUBNET6=\"${SUBNET6}\"
@@ -278,6 +282,8 @@ $LOGGING
       - discovery.seed_hosts=es01,es02
       - cluster.initial_master_nodes=es01,es02,es03
       - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - \"ES_JAVA_OPTS=-Xms512m -Xmx512m\"
       - SUBNET=\"${SUBNET}\"
       - SUBNET6=\"${SUBNET6}\"
