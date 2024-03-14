@@ -330,6 +330,7 @@ fi
 
 if [ ! "$DISABLE_KIBANA" -a ! "$DISABLE_ELASTICSEARCH" ]
 then
+	#Based on https://www.elastic.co/guide/en/kibana/current/docker.html
 	KIBANA="
   kibana:
     image: kibana:8.12.2
