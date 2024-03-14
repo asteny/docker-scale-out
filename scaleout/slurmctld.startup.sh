@@ -25,49 +25,6 @@ then
 
 	fi
 
-	if [ ! -s /etc/slurm/nodes.conf ]
-	then
-		props="$(slurmd -C | head -1 | sed "s#NodeName=$(hostname -s) ##g")"
-		echo "NodeName=DEFAULT $props Gres=gpu:gtx:3 State=UNKNOWN" > /etc/slurm/nodes.conf
-
-		cat /etc/nodelist | while read name cluster ip4 ip6
-		do
-			if [[ "$cluster" = "${SLURM_FEDERATION_CLUSTER}" ]]
-			then
-				[ ! -z "$ip6" ] && addr="$ip6" || addr="$ip4"
-				echo "NodeName=$name NodeAddr=$addr" >> /etc/slurm/nodes.conf
-			fi
-		done
-
-		NODES=$(cat /etc/nodelist  | awk -v CLUSTER=${SLURM_FEDERATION_CLUSTER} '
-			BEGIN {delete nodes[0]}
-
-			$2 == CLUSTER {
-				nodes[$1]=1
-			}
-
-			END {
-				comma=0
-				for (i in nodes) {
-					if (comma)
-						printf ",%s", i
-					else
-						printf "%s", i
-					comma=1
-				}
-			}')
-
-		grep "PartitionName=DEFAULT" /etc/slurm/slurm.conf &>/dev/null
-		if [ $? -ne 0 ]
-		then
-			#only add partitions if none exist yet - avoid clobbering user modified partition config
-			echo "PartitionName=DEFAULT Nodes=$NODES" >> /etc/slurm/slurm.conf
-			echo "PartitionName=debug Nodes=$NODES Default=YES MaxTime=INFINITE State=UP" >> /etc/slurm/slurm.conf
-		fi
-	fi
-
-	[ ! -s /etc/slurm/nodes.conf ] && (echo "nodes.conf not populated when it should have been" && exit 10)
-
 	#wait for slurmdbd to start up fully
 
 	while true
