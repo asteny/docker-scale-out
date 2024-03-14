@@ -2,6 +2,10 @@
 unset MAC
 [[ $OSTYPE == 'darwin'* ]] && MAC=1
 
+SUBNET=${SUBNET:-"10.11"}
+SUBNET6=${SUBNET6:-"2001:db8:1:1::"}
+NODELIST=${NODELIST:-"scaleout/nodelist"}
+
 #only mount cgroups with v1
 #https://github.com/jepsen-io/jepsen/issues/532#issuecomment-1128067136
 [ ! -f /sys/fs/cgroup/cgroup.controllers ] && SYSDFSMOUNTS="
@@ -32,7 +36,7 @@ CACHE_DESTROYER="$(find scaleout/patch.d -type f -name '*.patch' -print0 | sort 
 SLURM_RELEASE="${SLURM_RELEASE:-master}"
 DISTRO="almalinux:8"
 
-if [ -z "$SUBNET" -o "$SUBNET" = "10.11" ]
+if [ "$SUBNET" = "10.11" ]
 then
 	ELASTIC_SEARCH_PORT=${ELASTIC_SEARCH_PORT:-9200}
 	KIBANA_PORT=${KIBANA_PORT:-5601}
@@ -111,10 +115,6 @@ then
 else
 	XDMOD_PORTS=
 fi
-
-SUBNET=${SUBNET:-"10.11"}
-SUBNET6=${SUBNET6:-"2001:db8:1:1::"}
-NODELIST=${NODELIST:-"scaleout/nodelist"}
 
 if [ ! -s "$NODELIST" ]
 then
