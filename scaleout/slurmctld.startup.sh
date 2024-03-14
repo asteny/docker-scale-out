@@ -7,6 +7,9 @@ HOST="$(cat /etc/hostname)"
 sed -e '/^hosts:/d' -i /etc/nsswitch.conf
 echo 'hosts: files myhostname' >> /etc/nsswitch.conf
 
+touch /var/log/slurmctld.log
+chown -R slurm:slurm /var/log/slurmctld.log
+
 [ "${HOST}" = "mgmtnode" ] && IS_MGT=1 || IS_MGT=
 [ "${HOST}" = "${SLURM_FEDERATION_CLUSTER}-mgmtnode" ] && IS_FMGT=1 || IS_FMGT=
 echo "Running on host:${HOST} cluster:${SLURM_FEDERATION_CLUSTER} mgt=${IS_MGT} federated=${IS_FMGT}"
@@ -34,19 +37,6 @@ then
 		sleep 5
 	done
 
-	sacctmgr -vi add cluster "${SLURM_FEDERATION_CLUSTER}"
-	sacctmgr -vi add account bedrock Cluster="${SLURM_FEDERATION_CLUSTER}" Description="none" Organization="none"
-	sacctmgr -vi add user root Account=bedrock DefaultAccount=bedrock
-	sacctmgr -vi add user slurm Account=bedrock DefaultAccount=bedrock
-
-	for i in arnold bambam barney betty chip edna fred gazoo wilma dino pebbles
-	do
-		sacctmgr -vi add user $i Account=bedrock DefaultAccount=bedrock
-	done
-
-	#disable admins to allow their setup in class
-	#sacctmgr -vi add user dino Account=bedrock DefaultAccount=bedrock admin=admin
-	#sacctmgr -vi add user pebbles Account=bedrock DefaultAccount=bedrock admin=admin
 else
 	#wait for primary mgt node to be done starting up
 	while [[ "$(scontrol --json ping | jq -r '.pings[0].pinged')" != "UP" ]]

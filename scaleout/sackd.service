@@ -1,7 +1,6 @@
 [Unit]
 PathExists=/etc/slurm/slurm.key
 [Service]
-ExecCondition=bash -c '[ ! $([[ "$(hostname -s)" =~ slurmdb ]]) ! $([[ "$(hostname -s)" =~ mgmtnode[0-9]?$ ]]) -a ! $(/usr/local/bin/slurmd.check.sh) ]'
 ExecStartPre=+chown -R slurm:slurm /etc/slurm/slurm.key
 ExecStartPre=+chmod 0600 /etc/slurm/slurm.key
 ExecStartPre=+mkdir -p -m 0755 /run/slurm/
