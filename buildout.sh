@@ -218,6 +218,206 @@ LOGGING="
       - seccomp:unconfined
       - apparmor:unconfined
 "
+
+if [ ! "$DISABLE_ELASTICSEARCH" ]
+then
+	ELASTICSEARCH="
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
+    environment:
+      - node.name=es01
+      - cluster.name=scaleout
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - \"ES_JAVA_OPTS=-Xms512m -Xmx512m\"
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic_data01:/usr/share/elasticsearch/data
+      - /dev/log:/dev/log
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.15
+        ipv6_address: ${SUBNET6}1:15
+${ES_PORTS}
+$LOGGING
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
+    environment:
+      - node.name=es02
+      - cluster.name=scaleout
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - \"ES_JAVA_OPTS=-Xms512m -Xmx512m\"
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic_data02:/usr/share/elasticsearch/data
+      - /dev/log:/dev/log
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.16
+        ipv6_address: ${SUBNET6}1:16
+$LOGGING
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
+    environment:
+      - node.name=es03
+      - cluster.name=scaleout
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - \"ES_JAVA_OPTS=-Xms512m -Xmx512m\"
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic_data03:/usr/share/elasticsearch/data
+      - /dev/log:/dev/log
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.17
+        ipv6_address: ${SUBNET6}1:17
+$LOGGING
+"
+else
+	ELASTICSEARCH=""
+fi
+
+if [ ! "$DISABLE_GRAFANA" -a ! "$DISABLE_ELASTICSEARCH" ]
+then
+	GRAFANA="
+  grafana:
+    image: grafana
+    build:
+      context: ./grafana
+      network: host
+    environment:
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+    volumes:
+      - /dev/log:/dev/log
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.20
+        ipv6_address: ${SUBNET6}1:20
+$GRAFANA_PORTS
+$LOGGING
+"
+else
+	GRAFANA=""
+fi
+
+if [ ! "$DISABLE_KIBANA" -a ! "$DISABLE_ELASTICSEARCH" ]
+then
+	KIBANA="
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:7.10.1
+    volumes:
+      - /dev/log:/dev/log
+    environment:
+      - SERVER_NAME=scaleout
+      - ELASTICSEARCH_HOSTS=http://es01:9200
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.18
+        ipv6_address: ${SUBNET6}1:18
+${KIBANA_PORTS}
+    depends_on:
+      - \"es01\"
+      - \"es02\"
+      - \"es03\"
+$LOGGING
+"
+else
+	KIBANA=""
+fi
+
+if [ ! "$DISABLE_OPEN_ONDEMAND" ]
+then
+	ONDEMAND="
+  open-ondemand:
+    build:
+      context: ./open-ondemand
+      network: host
+    image: open-ondemand
+    environment:
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+      - DEFAULT_SSHHOST=login
+    volumes:
+      - /dev/log:/dev/log
+      - etc-ssh:/etc/shared-ssh
+      - home:/home/
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.21
+        ipv6_address: ${SUBNET6}1:21
+    depends_on:
+      - \"login\"
+$ONDEMAND_PORTS
+$LOGGING
+"
+else
+	ONDEMAND=""
+fi
+
+if [ ! "$DISABLE_INFLUXDB" ]
+then
+	INFLUXDB="
+  influxdb:
+    build:
+      context: ./influxdb
+      network: host
+    image: influxdb
+    command: [\"bash\", \"-c\", \"/setup.sh & source /entrypoint.sh\"]
+    environment:
+      - SUBNET=\"${SUBNET}\"
+      - SUBNET6=\"${SUBNET6}\"
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=user
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=scaleout
+      - DOCKER_INFLUXDB_INIT_BUCKET=scaleout
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token
+      - DOCKER_INFLUXDB_INIT_USER_ID=
+      - INFLUXDB_DATA_QUERY_LOG_ENABLED=true
+      - INFLUXDB_REPORTING_DISABLED=false
+      - INFLUXDB_HTTP_LOG_ENABLED=true
+      - INFLUXDB_CONTINUOUS_QUERIES_LOG_ENABLED=true
+      - LOG_LEVEL=debug
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /dev/log:/dev/log
+    networks:
+      internal:
+        ipv4_address: ${SUBNET}.1.19
+        ipv6_address: ${SUBNET6}1:19
+$LOGGING
+"
+else
+	INFLUXDB=""
+fi
+
 if [ ! "$DISABLE_XDMOD" ]
 then
 	XDMOD="
@@ -627,165 +827,11 @@ $HOSTLIST
 EOF
 
 cat <<EOF
-  open-ondemand:
-    build:
-      context: ./open-ondemand
-      network: host
-    image: open-ondemand
-    environment:
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-      - DEFAULT_SSHHOST=login
-    volumes:
-      - /dev/log:/dev/log
-      - etc-ssh:/etc/shared-ssh
-      - home:/home/
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.21
-        ipv6_address: ${SUBNET6}1:21
-    depends_on:
-      - "login"
-$ONDEMAND_PORTS
-$LOGGING
-  influxdb:
-    build:
-      context: ./influxdb
-      network: host
-    image: influxdb
-    command: ["bash", "-c", "/setup.sh & source /entrypoint.sh"]
-    environment:
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=user
-      - DOCKER_INFLUXDB_INIT_PASSWORD=password
-      - DOCKER_INFLUXDB_INIT_ORG=scaleout
-      - DOCKER_INFLUXDB_INIT_BUCKET=scaleout
-      - DOCKER_INFLUXDB_INIT_RETENTION=1w
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=token
-      - DOCKER_INFLUXDB_INIT_USER_ID=
-      - INFLUXDB_DATA_QUERY_LOG_ENABLED=true
-      - INFLUXDB_REPORTING_DISABLED=false
-      - INFLUXDB_HTTP_LOG_ENABLED=true
-      - INFLUXDB_CONTINUOUS_QUERIES_LOG_ENABLED=true
-      - LOG_LEVEL=debug
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - /dev/log:/dev/log
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.19
-        ipv6_address: ${SUBNET6}1:19
-$LOGGING
-  grafana:
-    image: grafana
-    build:
-      context: ./grafana
-      network: host
-    environment:
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-    volumes:
-      - /dev/log:/dev/log
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.20
-        ipv6_address: ${SUBNET6}1:20
-$GRAFANA_PORTS
-$LOGGING
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
-    environment:
-      - node.name=es01
-      - cluster.name=scaleout
-      - discovery.seed_hosts=es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - elastic_data01:/usr/share/elasticsearch/data
-      - /dev/log:/dev/log
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.15
-        ipv6_address: ${SUBNET6}1:15
-${ES_PORTS}
-$LOGGING
-  es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
-    environment:
-      - node.name=es02
-      - cluster.name=scaleout
-      - discovery.seed_hosts=es01,es03
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - elastic_data02:/usr/share/elasticsearch/data
-      - /dev/log:/dev/log
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.16
-        ipv6_address: ${SUBNET6}1:16
-$LOGGING
-  es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
-    environment:
-      - node.name=es03
-      - cluster.name=scaleout
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - elastic_data03:/usr/share/elasticsearch/data
-      - /dev/log:/dev/log
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.17
-        ipv6_address: ${SUBNET6}1:17
-$LOGGING
-  kibana:
-    image: docker.elastic.co/kibana/kibana-oss:7.10.1
-    volumes:
-      - /dev/log:/dev/log
-    environment:
-      - SERVER_NAME=scaleout
-      - ELASTICSEARCH_HOSTS=http://es01:9200
-      - SUBNET="${SUBNET}"
-      - SUBNET6="${SUBNET6}"
-    networks:
-      internal:
-        ipv4_address: ${SUBNET}.1.18
-        ipv6_address: ${SUBNET6}1:18
-${KIBANA_PORTS}
-    depends_on:
-      - "es01"
-      - "es02"
-      - "es03"
-$LOGGING
+$ONDEMAND
+$INFLUXDB
+$GRAFANA
+$ELASTICSEARCH
+$KIBANA
   rest:
     hostname: rest
     image: scaleout:latest

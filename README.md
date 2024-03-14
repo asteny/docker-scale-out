@@ -326,10 +326,24 @@ sudo -u xdmod -- /usr/bin/xdmod-ingestor
 exit
 ```
 
-## How to disable buidling xdmod container
+## How to disable building specific service containers
 
-This is will only disable attempts to build and start the container.
+This is will disable attempts to build and start the given containers for a service:
 
-```
-export DISABLE_XDMOD=1
-```
+XDMoD:
+  * export DISABLE_XDMOD=1
+
+Grafana:
+  * export DISABLE_GRAFANA=1
+
+Elastic Search (also disables Grafana and Kibana):
+  * export DISABLE_ELASTICSEARCH=1
+
+Kibana:
+  * export DISABLE_KIBANA=1
+
+Open OnDemand:
+  * export DISABLE_OPEN_ONDEMAND=1
+
+InfluxDB:
+  * export DISABLE_INFLUXDB=1
