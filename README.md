@@ -137,6 +137,26 @@ Each cluster must have a unique class B subnet.
 Default IPv4 is SUBNET="10.11".
 Default IPv6 is SUBNET6="2001:db8:1:1::".
 
+## Changing forwarded ports
+
+Elastic search port:
+  * export ELASTIC_SEARCH_PORT=9200
+
+Kibana port:
+  * export ELASTIC_SEARCH_PORT=5601
+
+Slurmrestd proxy port:
+  * export PROXY_PORT=8080
+
+Grafana port:
+  * export GRAFANA_PORT=3000
+
+OpenOnDemand port:
+  * export OPEN_ONDEMAND_PORT=8081
+
+XDMoD port:
+  * export XDMOD_PORT=8082
+
 ## Custom Nodes
 
 Custom node lists may be provided by setting NODELIST to point to a file

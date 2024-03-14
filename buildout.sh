@@ -31,37 +31,84 @@ CACHE_DESTROYER="$(find scaleout/patch.d -type f -name '*.patch' -print0 | sort 
 
 SLURM_RELEASE="${SLURM_RELEASE:-master}"
 DISTRO="almalinux:8"
+
 if [ -z "$SUBNET" -o "$SUBNET" = "10.11" ]
+then
+	ELASTIC_SEARCH_PORT=${ELASTIC_SEARCH_PORT:-9200}
+	KIBANA_PORT=${KIBANA_PORT:-5601}
+	PROXY_PORT=${PROXY_PORT:-8080}
+	GRAFANA_PORT=${GRAFANA_PORT:-3000}
+	OPEN_ONDEMAND_PORT=${OPEN_ONDEMAND_PORT:-8081}
+	XDMOD_PORT=${XDMOD_PORT:-8082}
+else
+	# must explicity request port on diff subnets
+	# as we assume there are multiple scaleout instances and
+	# forwarding the same port will be fail
+	ELASTIC_SEARCH_PORT=${ELASTIC_SEARCH_PORT:-0}
+	KIBANA_PORT=${KIBANA_PORT:-0}
+	PROXY_PORT=${PROXY_PORT:-0}
+	GRAFANA_PORT=${GRAFANA_PORT:-0}
+	OPEN_ONDEMAND_PORT=${OPEN_ONDEMAND_PORT:-0}
+	XDMOD_PORT=${XDMOD_PORT:-0}
+fi
+
+if [ "${ELASTIC_SEARCH_PORT}" -gt 0 ]
 then
 	ES_PORTS="
     ports:
-      - 9200:9200
-"
-	KIBANA_PORTS="
-    ports:
-      - 5601:5601
-"
-	PROXY_PORTS="
-    ports:
-      - 8080:8080
-"
-	GRAFANA_PORTS="
-    ports:
-      - 3000:3000
-"
-	ONDEMAND_PORTS="
-    ports:
-      - 8081:80
-"
-	XDMOD_PORTS="
-    ports:
-      - 8082:80
+      - ${ELASTIC_SEARCH_PORT}:9200
 "
 else
 	ES_PORTS=
+fi
+
+if [ "${KIBANA_PORT}" -gt 0 ]
+then
+	KIBANA_PORTS="
+    ports:
+      - ${KIBANA_PORT}:5601
+"
+else
 	KIBANA_PORTS=
+fi
+
+if [ "${PROXY_PORT}" -gt 0 ]
+then
+	PROXY_PORTS="
+    ports:
+      - ${PROXY_PORT}:8080
+"
+else
 	PROXY_PORTS=
+fi
+
+if [ "${GRAFANA_PORT}" -gt 0 ]
+then
+	GRAFANA_PORTS="
+    ports:
+      - ${GRAFANA_PORT}:3000
+"
+else
 	GRAFANA_PORTS=
+fi
+
+if [ "${OPEN_ONDEMAND_PORT}" -gt 0 ]
+then
+	ONDEMAND_PORTS="
+    ports:
+      - ${OPEN_ONDEMAND_PORT}:80
+"
+else
+	ONDEMAND_PORTS=
+fi
+
+if [ "${XDMOD_PORT}" -gt 0 ]
+then
+	XDMOD_PORTS="
+    ports:
+      - ${XDMOD_PORT}:80
+"
+else
 	XDMOD_PORTS=
 fi
 
