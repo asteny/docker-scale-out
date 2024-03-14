@@ -218,8 +218,9 @@ LOGGING="
       - seccomp:unconfined
       - apparmor:unconfined
 "
-
-XDMOD="
+if [ ! "$DISABLE_XDMOD" ]
+then
+	XDMOD="
   xdmod:
     build:
       context: ./xdmod
@@ -242,9 +243,7 @@ $XDMOD_PORTS
 $LOGGING
 $HOSTLIST
 "
-
-if [ "$DISABLE_XDMOD" ]
-then
+else
 	XDMOD=""
 fi
 
