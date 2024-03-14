@@ -17,7 +17,7 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	libcurl-devel freeipmi-devel numactl-devel lynx numactl \
 	rdma-core-devel gcc-c++ flex libgcrypt-devel gcc-gfortran \
 	strace ltrace gdb valgrind wget cmake sudo jansson-devel \
-	openssh-server pam-devel xterm oniguruma-devel \
+	openssh-server pam-devel xterm oniguruma-devel maven \
 	lua-devel xauth man mailx postfix http-parser-devel \
 	libyaml-devel mlocate gettext-devel texinfo java-11-openjdk \
 	systemd net-tools socat jq squashfs-tools fuse-overlayfs pigz \
