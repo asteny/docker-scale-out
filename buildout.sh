@@ -223,7 +223,7 @@ if [ ! "$DISABLE_ELASTICSEARCH" ]
 then
 	ELASTICSEARCH="
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
+    image: elasticsearch:8.12.2
     environment:
       - node.name=es01
       - cluster.name=scaleout
@@ -247,7 +247,7 @@ then
 ${ES_PORTS}
 $LOGGING
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
+    image: elasticsearch:8.12.2
     environment:
       - node.name=es02
       - cluster.name=scaleout
@@ -270,7 +270,7 @@ $LOGGING
         ipv6_address: ${SUBNET6}1:16
 $LOGGING
   es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.1
+    image: elasticsearch:8.12.2
     environment:
       - node.name=es03
       - cluster.name=scaleout
