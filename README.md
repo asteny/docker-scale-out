@@ -109,8 +109,8 @@ Nginx Proxy node:
 Rest API Nodes:
   * rest
 
-Kibana:
-  * View http://localhost:5601/
+Kibana (Only supports IPv4):
+  * View http://127.0.0.1:5601/
 
 Elasticsearch:
   * View http://localhost:9200/
