@@ -325,7 +325,7 @@ if [ ! "$DISABLE_KIBANA" -a ! "$DISABLE_ELASTICSEARCH" ]
 then
 	KIBANA="
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:7.10.1
+    image: kibana:8.12.2
     volumes:
       - /dev/log:/dev/log
     environment:
