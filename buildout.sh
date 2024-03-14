@@ -338,7 +338,7 @@ then
       - /dev/log:/dev/log
     environment:
       - SERVER_NAME=scaleout
-      - ELASTICSEARCH_HOSTS=http://es01:9200
+      - ELASTICSEARCH_HOSTS=[\"http://es01:9200\",\"http://es02:9200\",\"http://es03:9200\"]
       - SUBNET=\"${SUBNET}\"
       - SUBNET6=\"${SUBNET6}\"
     networks:
