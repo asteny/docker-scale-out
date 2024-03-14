@@ -841,6 +841,7 @@ $INFLUXDB
 $GRAFANA
 $ELASTICSEARCH
 $KIBANA
+$XDMOD
   rest:
     hostname: rest
     image: scaleout:latest
@@ -884,7 +885,6 @@ ${PROXY_PORTS}
     depends_on:
       - "rest"
 $HOSTLIST
-$XDMOD
 EOF
 
 exit 0
