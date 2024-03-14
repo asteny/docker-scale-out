@@ -132,11 +132,9 @@ RUN postconf -e "mydestination = cluster scaleout localhost.localdomain localhos
 RUN newaliases && \
 	postconf -e "mydestination = login login.localdomain cluster scaleout localhost.localdomain, localhost"
 
-#Install OpenAPI generator jar directly (installing from source is very slow)
-RUN mkdir -p /usr/local/jar/ && \
-	curl -s https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/4.3.1/openapi-generator-cli-4.3.1.jar -o /usr/local/jar/openapi-generator-cli.jar && \
-	echo -e "#!/bin/bash\nexec java -jar /usr/local/jar/openapi-generator-cli.jar \$@" > /usr/local/bin/openapi-generator-cli && chmod 0755 /usr/local/bin/openapi-generator-cli
-#https://pypi.org/project/openapi-python-client/
+RUN curl -s https://github.com/OpenAPITools/openapi-generator/blob/master/bin/utils/openapi-generator-cli.sh \
+	-o /usr/local/bin/openapi-generator-cli && \
+	chmod 0755 /usr/local/bin/openapi-generator-cli
 
 RUN git clone --depth 1 --single-branch -b v0.9.1 https://github.com/NVIDIA/pyxis.git /usr/local/src/pyxis
 WORKDIR /usr/local/src/pyxis
