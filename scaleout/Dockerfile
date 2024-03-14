@@ -136,7 +136,7 @@ RUN newaliases && \
 RUN curl -s https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh \
 	-o /usr/local/bin/openapi-generator-cli && \
 	chmod 0755 /usr/local/bin/openapi-generator-cli && \
-	/usr/local/bin/openapi-generator-cli version
+	env OPENAPI_GENERATOR_VERSION="7.3.0" /usr/local/bin/openapi-generator-cli version
 
 RUN git clone --depth 1 --single-branch -b v0.9.1 https://github.com/NVIDIA/pyxis.git /usr/local/src/pyxis
 WORKDIR /usr/local/src/pyxis
