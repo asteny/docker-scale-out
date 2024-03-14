@@ -221,6 +221,7 @@ LOGGING="
 
 if [ ! "$DISABLE_ELASTICSEARCH" ]
 then
+	#based on https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docker.html
 	ELASTICSEARCH="
   es01:
     image: elasticsearch:8.12.2
