@@ -132,7 +132,7 @@ RUN postconf -e "mydestination = cluster scaleout localhost.localdomain localhos
 RUN newaliases && \
 	postconf -e "mydestination = login login.localdomain cluster scaleout localhost.localdomain, localhost"
 
-RUN curl -s https://github.com/OpenAPITools/openapi-generator/blob/master/bin/utils/openapi-generator-cli.sh \
+RUN curl -s https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh \
 	-o /usr/local/bin/openapi-generator-cli && \
 	chmod 0755 /usr/local/bin/openapi-generator-cli
 
