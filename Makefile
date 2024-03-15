@@ -5,6 +5,9 @@ IMAGES := $(shell $(DC) config | awk '{if ($$1 == "image:") print $$2;}' | sort 
 SUBNET ?= 10.11
 SUBNET6 ?= 2001:db8:1:1::
 
+# Tell Docker to always prefer the local arch type instead of just the default of the pulled images
+DOCKER_DEFAULT_PLATFORM ?= linux/$(shell docker info -f '{{ .Architecture}}')
+
 .EXPORT_ALL_VARIABLES:
 
 default: ./docker-compose.yml run
