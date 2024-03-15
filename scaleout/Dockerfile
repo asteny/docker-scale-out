@@ -24,6 +24,7 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	fuse-devel rpcgen cronie valgrind-devel iproute procps-ng \
 	lua-json.noarch rsync crun go gpgme-devel libseccomp-devel \
 	libassuan-devel dbus-devel bash-completion tzdata-java \
+	check-devel \
 	python3-setuptools-wheel python3-virtualenv python3-urllib3 \
 	python3-six python3-requests python3-pexpect \
 	python3.11 python3.11-pip python3.11-pytest python3.11-requests
