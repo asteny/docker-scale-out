@@ -288,6 +288,7 @@ ARG DOCKER_FROM
 FROM ${DOCKER_FROM} as scaleout
 ARG CACHE_DESTROYER
 ARG SLURM_CONF_SERVER
+ARG SLURM_RELEASE
 COPY --from=base / /
 COPY dump_xdmod.sh /etc/cron.hourly/dump_xdmod.sh
 COPY resume.node.sh /usr/local/sbin/
@@ -312,8 +313,8 @@ RUN find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | \
 	env SLURM_RELEASE="${SLURM_RELEASE}" bash -c "\
 	if [ -s /usr/local/src/slurm/patch.list ]; then \
 		cd /usr/local/src/slurm/; \
-		git fetch -f origin \${SLURM_RELEASE}:\${SLURM_RELEASE} && \
-		git reset --hard \${SLURM_RELEASE} && \
+		git fetch -f origin \${SLURM_RELEASE} && \
+		git reset --hard origin/\${SLURM_RELEASE} && \
 		xargs -t -0 -r -n1 git am -3 --ignore-space-change --exclude=NEWS < /usr/local/src/slurm/patch.list && \
 		make -j >/dev/null && make install >/dev/null; \
 	fi"
