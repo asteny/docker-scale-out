@@ -134,7 +134,9 @@ RUN postconf -e "mydestination = cluster scaleout localhost.localdomain localhos
 RUN newaliases && \
 	postconf -e "mydestination = login login.localdomain cluster scaleout localhost.localdomain, localhost"
 
-RUN curl -s https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh \
+COPY openapi-generator-cli-requirements.txt /usr/local/src/slurm/testsuite/python/requirements.txt
+RUN pip3 install -r /usr/local/src/slurm/testsuite/python/requirements.txt && \
+	curl -s https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh \
 	-o /usr/local/bin/openapi-generator-cli && \
 	chmod 0755 /usr/local/bin/openapi-generator-cli && \
 	env OPENAPI_GENERATOR_VERSION="7.3.0" /usr/local/bin/openapi-generator-cli version
