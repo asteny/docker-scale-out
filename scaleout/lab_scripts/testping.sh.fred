@@ -5,5 +5,4 @@
 #SBATCH --exclusive
 #SBATCH -A bioinformatics
 
-ping -c 20 google.com
-
+ping -c 20 -4 google.com
