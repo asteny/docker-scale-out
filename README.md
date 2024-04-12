@@ -179,6 +179,7 @@ make
 ## To build and run in Cloud mode:
 
 ```
+make clean
 make cloud
 ```
 
