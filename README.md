@@ -14,7 +14,6 @@ Docker compose cluster for testing Slurm
 net.ipv4.tcp_max_syn_backlog=4096
 net.core.netdev_max_backlog=1000
 net.core.somaxconn=15000
-fs.file-max=992832
 
 # Force gc to clean-up quickly
 net.ipv4.neigh.default.gc_interval = 3600
