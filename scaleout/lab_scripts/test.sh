@@ -10,7 +10,7 @@ sudo su - gazoo -c "sbatch --qos=normal -Amolecular -N5 --mem=600 -t50 -o /dev/n
 sudo su - barney -c "sbatch --qos=normal -Amanagers -N2 --mem=700 -t50 -o /dev/null --wrap='srun hostname'"
 sudo su - wilma -c "sbatch --qos=normal -Abedrock -N5 --mem=800 -t50 -o /dev/null --wrap='srun hostname'"
 sudo su - pebbles -c "sbatch --qos=normal -Agpuusers -N1 --mem=800 -t50 --gres=gpu:gtx:2 -o /dev/null --wrap='srun hostname'"
-sudo su - bambam -c "sbatch --qos=nromal -Agpuusers -N1 --mem=800 -t50 --gres=gpu:gtx:2 -o /dev/null --wrap='srun hostname'"
+sudo su - bambam -c "sbatch --qos=normal -Agpuusers -N1 --mem=800 -t50 --gres=gpu:gtx:2 -o /dev/null --wrap='srun hostname'"
 done
 
 # for x in pebbles bambam fred chip dino edna gazoo barney wilma ; do scancel -u $x ; done
