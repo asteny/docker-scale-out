@@ -67,6 +67,9 @@ Before=slices.target
 [Slice]
 CPUAccounting=true
 MemoryAccounting=true
+CPUWeight=idle
+IOAccounting=true
+IOWeight=1
 Delegate=yes
 ```
 
