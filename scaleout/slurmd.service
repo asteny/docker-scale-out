@@ -10,3 +10,5 @@ Environment="SLURMD_OPTIONS=-Z --conf Feature=compute"
 Slice=slurmd.slice
 TimeoutStartUSec=infinity
 TimeoutStartSec=infinity
+Restart=always
+RestartSec=1
