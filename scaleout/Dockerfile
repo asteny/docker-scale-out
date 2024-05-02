@@ -270,7 +270,7 @@ RUN sed -e "s/{SUBNET6}/${SUBNET6}/" -e "s/{SUBNET}/${SUBNET}/" \
 	-i /etc/sysconfig/slurmrestd && \
 	chmod 0755 /usr/local/bin/*.sh
 
-RUN cp /usr/local/src/slurm/etc/{sackd.service,slurmctld.service,slurmd.service,slurmdbd.service,slurmrestd.service}  /usr/lib/systemd/system && \
+RUN cp /usr/local/src/slurm/etc/{slurmctld.service,slurmd.service,slurmdbd.service,slurmrestd.service}  /usr/lib/systemd/system && \
 	echo -e '#!/bin/bash\nset -o vi' > /etc/profile.d/mode.sh && \
 	chmod 0755 /usr/local/bin/mysql && \
 	chmod 0755 /usr/local/bin/slurmctld.startup.sh && \
@@ -300,18 +300,28 @@ COPY dump_xdmod.sh /etc/cron.hourly/dump_xdmod.sh
 COPY resume.node.sh /usr/local/sbin/
 COPY suspend.node.sh /usr/local/sbin/
 RUN chmod 0755 /usr/local/sbin/{resume.node.sh,suspend.node.sh} && \
-	mkdir -p /etc/systemd/system/{sackd,postfix,slurmctld,slurmdbd,slurmd,slurmrestd}.service.d
+	mkdir -p /etc/systemd/system/{postfix,slurmctld,slurmdbd,slurmd,slurmrestd}.service.d
 COPY slurmd.slice /etc/systemd/system/slurmd.slice
 COPY slurmdbd.service /etc/systemd/system/slurmdbd.service.d/local.conf
 COPY slurmctld.service /etc/systemd/system/slurmctld.service.d/local.conf
 COPY slurmd.service /etc/systemd/system/slurmd.service.d/local.conf
 COPY slurmrestd.service /etc/systemd/system/slurmrestd.service.d/local.conf
 COPY postfix.service /etc/systemd/system/postfix.service.d/local.conf
-COPY sackd.service /etc/systemd/system/sackd.service.d/local.conf
 COPY podman-containers /etc/containers/
-RUN systemctl enable slurmdbd slurmctld slurmd sackd slurmrestd postfix slurmd.slice && \
+RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix slurmd.slice && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
+
+#Gracefully workaround sackd missing as it was only added in 23.11
+COPY sackd.service /tmp/sackd.service
+RUN test -f /usr/local/src/slurm/etc/sackd.service && \
+	( \
+		cp /usr/local/src/slurm/etc/sackd.service /usr/lib/systemd/system && \
+		mkdir -p /etc/systemd/system/sackd.service.d && \
+		mv /tmp/sackd.service /etc/systemd/system/sackd.service.d/local.conf && \
+		systemctl enable sackd \
+	) || unlink /tmp/sackd.service
+
 RUN touch "/tmp/$CACHE_DESTROYER"
 COPY patch.d /usr/local/src/slurm/patch.d
 RUN find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | \
