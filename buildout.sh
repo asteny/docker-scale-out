@@ -213,7 +213,6 @@ fi
 
 cat <<EOF
 ---
-version: "3.8"
 networks:
   internal:
     driver: bridge
