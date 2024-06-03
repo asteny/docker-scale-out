@@ -752,7 +752,7 @@ $HOSTLIST
       - SUBNET6="${SUBNET6}"
       - container=docker
     hostname: proxy
-    command: ["bash", "-c", "/usr/sbin/nginx& /usr/sbin/php-fpm81 -F& wait"]
+    command: ["bash", "-c", "/usr/sbin/nginx& /usr/sbin/php-fpm83 -F& wait"]
     networks:
       internal:
         ipv4_address: ${SUBNET}.1.7
