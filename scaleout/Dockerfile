@@ -150,7 +150,7 @@ RUN git clone --depth 1 --single-branch --branch 0.1.103 https://github.com/vasi
 WORKDIR /usr/local/src/squashfuse
 RUN autoreconf -i && ./configure && make -j >/dev/null && make install
 
-RUN git clone --recurse-submodules --depth 1 --single-branch --branch v3.3.0 https://github.com/NVIDIA/enroot.git /usr/local/src/enroot
+RUN git clone --recurse-submodules --depth 1 --single-branch --branch v3.5.0 https://github.com/NVIDIA/enroot.git /usr/local/src/enroot
 WORKDIR /usr/local/src/enroot
 COPY enroot.conf /tmp/enroot.conf
 RUN make sysconfdir=/etc/enroot/ -j >/dev/null && make install && make setcap && \
