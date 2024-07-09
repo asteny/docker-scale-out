@@ -17,20 +17,22 @@ RUN dnf -y install --allowerasing --exclude google-chrome-* \
 	libcurl-devel freeipmi-devel numactl-devel lynx numactl \
 	rdma-core-devel gcc-c++ flex libgcrypt-devel gcc-gfortran \
 	strace ltrace gdb valgrind wget cmake sudo jansson-devel \
-	openssh-server pam-devel xterm oniguruma-devel \
+	openssh-server pam-devel xterm oniguruma-devel maven \
 	lua-devel xauth man mailx postfix http-parser-devel \
 	libyaml-devel mlocate gettext-devel texinfo java-11-openjdk \
 	systemd net-tools socat jq squashfs-tools fuse-overlayfs pigz \
 	fuse-devel rpcgen cronie valgrind-devel iproute procps-ng \
 	lua-json.noarch rsync crun go gpgme-devel libseccomp-devel \
 	libassuan-devel dbus-devel bash-completion tzdata-java \
+	check-devel \
 	python3-setuptools-wheel python3-virtualenv python3-urllib3 \
 	python3-six python3-requests python3-pexpect \
 	python3.11 python3.11-pip python3.11-pytest python3.11-requests
 RUN alternatives --set python3 /usr/bin/python3.11 && \
 	ln -s $(which pytest-3.11) /usr/bin/pytest-3 && \
 	ln -s /usr/lib/python3.6/site-packages/pexpect/ /usr/lib/python3.11/site-packages/pexpect && \
-	ln -s /usr/lib/python3.6/site-packages/ptyprocess/ /usr/lib/python3.11/site-packages/ptyprocess
+	ln -s /usr/lib/python3.6/site-packages/ptyprocess/ /usr/lib/python3.11/site-packages/ptyprocess && \
+	alternatives --set java java-11-openjdk.x86_64
 RUN git clone --depth 1 --single-branch -b v3.9.2 https://github.com/luarocks/luarocks.git /usr/local/src/luarocks/
 WORKDIR /usr/local/src/luarocks/
 RUN ./configure --prefix=/usr/local --sysconfdir=/etc/ && make -j && make install
@@ -79,18 +81,22 @@ RUN /usr/sbin/groupadd -r slurm -g 1001 && \
 	echo 'slurm        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers
 RUN mkdir -p /var/spool/slurm/statesave /var/spool/slurm/spool
 RUN chown slurm:slurm -R /var/spool/slurm
-RUN /usr/sbin/groupadd -r munge
-RUN /usr/sbin/useradd -c "MUNGE authentication service" -d "/usr/local/etc/munge" -g munge -s /bin/false -r munge
-RUN mkdir -m 0700 -p /etc/munge/ && \
-	mkdir -p -m 0700 /var/log/munge && chown munge:munge -R /var/log/munge /var/run/munge/
-RUN dd if=/dev/urandom bs=32 count=1 >/etc/slurm/jwt.key
-RUN chown slurm:slurm /etc/slurm/jwt.key
-RUN chmod 0600 /etc/slurm/jwt.key
-RUN dd if=/dev/urandom bs=1 count=1024 >/etc/munge/munge.key
-RUN touch /etc/munge/munge.seed
-RUN chown munge:munge -R /etc/munge
-RUN chmod 0400 /etc/munge/munge.key /etc/munge/munge.seed
-RUN chown root:root /etc/munge/ -R && chown -R munge:munge /etc/munge
+RUN dd if=/dev/urandom bs=32 count=1 >/etc/slurm/jwt.key && \
+	chown slurm:slurm /etc/slurm/jwt.key && \
+	chmod 0600 /etc/slurm/jwt.key
+RUN dd if=/dev/random of=/etc/slurm/slurm.key bs=1024 count=1 >/etc/slurm/slurm.key && \
+	chown slurm:slurm /etc/slurm/slurm.key && \
+	chmod 0600 /etc/slurm/slurm.key
+RUN /usr/sbin/groupadd -r munge && \
+	/usr/sbin/useradd -c "MUNGE authentication service" -d "/usr/local/etc/munge" -g munge -s /bin/false -r munge && \
+	mkdir -m 0700 -p /etc/munge/ && \
+	mkdir -p -m 0700 /var/log/munge && chown munge:munge -R /var/log/munge /var/run/munge/ && \
+	dd if=/dev/urandom bs=1 count=1024 >/etc/munge/munge.key && \
+	touch /etc/munge/munge.seed && \
+	chown munge:munge -R /etc/munge && \
+	chmod 0400 /etc/munge/munge.key /etc/munge/munge.seed && \
+	chown root:root /etc/munge/ -R && \
+	chown -R munge:munge /etc/munge
 RUN git clone --depth 1 --single-branch -b pdsh-2.33 https://github.com/chaos/pdsh.git /usr/local/src/pdsh/
 WORKDIR /usr/local/src/pdsh
 RUN autoreconf -i && ./configure --without-rsh --with-ssh --prefix=/usr/local --sysconfdir=/etc/ --with-readline && make -j >/dev/null && make install >/dev/null
@@ -132,11 +138,12 @@ RUN postconf -e "mydestination = cluster scaleout localhost.localdomain localhos
 RUN newaliases && \
 	postconf -e "mydestination = login login.localdomain cluster scaleout localhost.localdomain, localhost"
 
-#Install OpenAPI generator jar directly (installing from source is very slow)
-RUN mkdir -p /usr/local/jar/ && \
-	curl -s https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/4.3.1/openapi-generator-cli-4.3.1.jar -o /usr/local/jar/openapi-generator-cli.jar && \
-	echo -e "#!/bin/bash\nexec java -jar /usr/local/jar/openapi-generator-cli.jar \$@" > /usr/local/bin/openapi-generator-cli && chmod 0755 /usr/local/bin/openapi-generator-cli
-#https://pypi.org/project/openapi-python-client/
+COPY openapi-generator-cli-requirements.txt /usr/local/src/slurm/testsuite/python/requirements.txt
+RUN pip3 install -r /usr/local/src/slurm/testsuite/python/requirements.txt && \
+	curl -s https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh \
+	-o /usr/local/bin/openapi-generator-cli && \
+	chmod 0755 /usr/local/bin/openapi-generator-cli && \
+	env OPENAPI_GENERATOR_VERSION="7.3.0" /usr/local/bin/openapi-generator-cli version
 
 RUN git clone --depth 1 --single-branch -b v0.9.1 https://github.com/NVIDIA/pyxis.git /usr/local/src/pyxis
 WORKDIR /usr/local/src/pyxis
@@ -272,7 +279,7 @@ RUN cp /usr/local/src/slurm/etc/{slurmctld.service,slurmd.service,slurmdbd.servi
 	chmod 0755 /usr/local/bin/slurmrestd.startup.sh && \
 	mkdir -p /auth && chown -R slurm:slurm /auth && \
 	chmod 0755 /auth && \
-	chown -R slurm:slurm /usr/local/src/
+	chown -R slurm:slurm /usr/local/src/slurm/testsuite/
 
 COPY globals.local /usr/local/src/slurm/testsuite/expect/globals.local
 COPY testsuite.conf /usr/local/src/slurm/testsuite/testsuite.conf
@@ -286,6 +293,8 @@ WORKDIR /root/
 ARG DOCKER_FROM
 FROM ${DOCKER_FROM} as scaleout
 ARG CACHE_DESTROYER
+ARG SLURM_CONF_SERVER
+ARG SLURM_RELEASE
 COPY --from=base / /
 COPY dump_xdmod.sh /etc/cron.hourly/dump_xdmod.sh
 COPY resume.node.sh /usr/local/sbin/
@@ -302,6 +311,17 @@ COPY podman-containers /etc/containers/
 RUN systemctl enable slurmdbd slurmctld slurmd slurmrestd postfix slurmd.slice && \
 	systemctl disable dnf-makecache.timer && \
 	systemctl mask systemd-udevd.service kdump.service systemd-tmpfiles-clean.timer  nis-domainname.service systemd-hwdb-update.service systemd-udev-trigger.service
+
+#Gracefully workaround sackd missing as it was only added in 23.11
+COPY sackd.service /tmp/sackd.service
+RUN test -f /usr/local/src/slurm/etc/sackd.service && \
+	( \
+		cp /usr/local/src/slurm/etc/sackd.service /usr/lib/systemd/system && \
+		mkdir -p /etc/systemd/system/sackd.service.d && \
+		mv /tmp/sackd.service /etc/systemd/system/sackd.service.d/local.conf && \
+		systemctl enable sackd \
+	) || unlink /tmp/sackd.service
+
 RUN touch "/tmp/$CACHE_DESTROYER"
 COPY patch.d /usr/local/src/slurm/patch.d
 RUN find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | \
@@ -309,8 +329,8 @@ RUN find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | \
 	env SLURM_RELEASE="${SLURM_RELEASE}" bash -c "\
 	if [ -s /usr/local/src/slurm/patch.list ]; then \
 		cd /usr/local/src/slurm/; \
-		git fetch -f origin \${SLURM_RELEASE}:\${SLURM_RELEASE} && \
-		git reset --hard \${SLURM_RELEASE} && \
+		git fetch -f origin \${SLURM_RELEASE} && \
+		git reset --hard origin/\${SLURM_RELEASE} && \
 		xargs -t -0 -r -n1 git am -3 --ignore-space-change --exclude=NEWS < /usr/local/src/slurm/patch.list && \
 		make -j >/dev/null && make install >/dev/null; \
 	fi"

@@ -1,9 +1,12 @@
-HOST ?= login
+HOST ?= $(shell echo "$$FEDERATION" | awk 'BEGIN {node="mgmtnode"} {if ($$1) node=$$1 "-mgmtnode"} END {print node}')
 BUILD ?= up --build --remove-orphans -d
 DC ?= $(shell docker compose version 2>&1 >/dev/null && echo "docker compose" || echo "docker-compose")
 IMAGES := $(shell $(DC) config | awk '{if ($$1 == "image:") print $$2;}' | sort | uniq)
 SUBNET ?= 10.11
 SUBNET6 ?= 2001:db8:1:1::
+
+# Tell Docker to always prefer the local arch type instead of just the default of the pulled images
+DOCKER_DEFAULT_PLATFORM ?= linux/$(shell docker info -f '{{ .Architecture}}')
 
 .EXPORT_ALL_VARIABLES:
 
