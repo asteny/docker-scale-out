@@ -162,9 +162,9 @@ XDMoD port:
 
 ## Custom Nodes
 
-Custom node lists may be provided by setting NODELIST to point to a file
-containing list of nodes for the cluster or modifing the default generated
-"nodelist" file in the scaleout directory.
+Custom node lists may be provided by setting env NODELIST (defaults to
+scaleout/nodelist) to point to a file containing list of nodes for the cluster
+or modifing the default generated "nodelist" file in the scaleout directory.
 
 The node list follows the following format with one node per line:
 > ${HOSTNAME} ${CLUSTERNAME} ${IPv4} ${IPv6}
