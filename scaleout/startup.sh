@@ -2,6 +2,7 @@
 
 # Add hosts in the not crazy slow manner
 cat /etc/hosts.nodes >> /etc/hosts
+unlink /etc/hosts.nodes
 
 #ensure the systemd cgroup directory exists for enroot
 mkdir -p $(awk -F: '$2 ~ /systemd/ {printf "/sys/fs/cgroup/systemd/%s", $3}' /proc/self/cgroup)
