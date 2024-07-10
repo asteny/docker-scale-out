@@ -338,7 +338,7 @@ RUN find /usr/local/src/slurm/patch.d -type f -name '*.patch' -print0 | \
 COPY nodelist /etc/nodelist
 COPY lab_scripts/* /lab_scripts/
 COPY slurm/ /etc/slurm/
-RUN ln -nfs /usr/local/share/pyxis/pyxis.conf /etc/slurm/plugstack.conf.d/pyxis.conf && \
+RUN cat /usr/local/share/pyxis/pyxis.conf >> /etc/slurm/plugstack.conf && \
 	chmod 0600 /etc/slurm/slurmdbd.conf && \
 	chown slurm:slurm /etc/slurm/slurmdbd.conf && \
 	systemctl enable munge && \
