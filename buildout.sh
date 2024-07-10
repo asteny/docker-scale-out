@@ -558,6 +558,7 @@ $HOSTLIST
     environment:
       - SUBNET="${SUBNET}"
       - SUBNET6="${SUBNET}"
+      - SLURM_FEDERATION_CLUSTER=${FIRST_CLUSTER}
     hostname: slurmdbd
     networks:
       internal:
