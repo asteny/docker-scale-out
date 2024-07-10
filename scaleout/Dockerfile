@@ -264,6 +264,7 @@ COPY slurmctld.startup2.sh /usr/local/bin/slurmctld.startup2.sh
 COPY slurmd.startup.sh /usr/local/bin/slurmd.startup.sh
 COPY slurmd.startup2.sh /usr/local/bin/slurmd.startup2.sh
 COPY slurmd.check.sh /usr/local/bin/slurmd.check.sh
+COPY slurmdbd.epilog.sh /usr/local/bin/slurmdbd.epilog.sh
 COPY login.startup.sh /usr/local/bin/login.startup.sh
 COPY slurmrestd.startup.sh /usr/local/bin/slurmrestd.startup.sh
 COPY slurmrestd.env /etc/sysconfig/slurmrestd

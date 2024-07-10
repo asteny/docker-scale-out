@@ -1,4 +1,5 @@
 [Service]
 ExecStartPre=+touch /var/log/slurmdbd.log
 ExecStartPre=+chown slurm:slurm /var/log/slurmdbd.log
+ExecStartPost=+/usr/local/bin/slurmdbd.epilog.sh
 ExecCondition=bash -c 'exec test $(hostname -s) = "slurmdbd"'
