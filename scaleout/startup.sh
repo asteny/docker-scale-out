@@ -4,6 +4,10 @@
 cat /etc/hosts.nodes >> /etc/hosts
 unlink /etc/hosts.nodes
 
+# Force use of /etc/hosts first
+sed -e '/^hosts:/d' -i /etc/nsswitch.conf
+echo 'hosts:      files dns myhostname' >> /etc/nsswitch.conf
+
 #ensure the systemd cgroup directory exists for enroot
 mkdir -p $(awk -F: '$2 ~ /systemd/ {printf "/sys/fs/cgroup/systemd/%s", $3}' /proc/self/cgroup)
 
