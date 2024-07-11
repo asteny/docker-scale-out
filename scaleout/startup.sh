@@ -40,13 +40,15 @@ for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma; do
 	chown $i:users /run/user/$uid
 done
 
-ls /usr/lib/systemd/system/{slurm*.service,sackd.service} | while read s
+for s in sackd.service slurmctld.service slurmd.service slurmdbd.service slurmrestd.service
 do
 	#We must set the cluster environment variable for all services since systemd drops it for the services
-	mkdir -p ${s}.d
-	echo -e "[Service]\n" > ${s}.d/cluster.conf
-	echo -e "Environment=SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}\n" >> ${s}.d/cluster.conf
-	[ ! -z "$SLURM_CONF_SERVER" ] && echo -e "Environment=SLURM_CONF_SERVER=${SLURM_CONF_SERVER}\n" >> ${s}.d/cluster.conf
+	p="/etc/systemd/system/${s}.d/"
+	f="${p}/cluster.conf"
+	mkdir -p ${p}
+	echo -e "[Service]\n" > ${f}
+	echo -e "Environment=SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}\n" >> ${f}
+	[ ! -z "$SLURM_CONF_SERVER" ] && echo -e "Environment=SLURM_CONF_SERVER=${SLURM_CONF_SERVER}\n" >> ${f}
 done
 
 echo "export SLURM_CONF_SERVER=${SLURM_CONF_SERVER} SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}" >> /etc/profile
