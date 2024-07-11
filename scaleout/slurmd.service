@@ -1,7 +1,6 @@
 [Unit]
 After=slurmd.slice
 Requires=slurmd.slice
-Conflicts=sackd.service
 [Service]
 ExecCondition=/usr/local/bin/slurmd.check.sh
 ExecStartPre=+touch /var/log/slurmd.log
