@@ -33,7 +33,8 @@ for e in $(tr "\000" "\n" < /proc/1/environ); do
 done
 
 # Force configless by removing copy from original docker build
-rm -Rvf /etc/slurm
+# Preserve slurm.key for auth/slurm
+find /etc/slurm/ ! -name slurm.key ! -name slurm | xargs rm
 
 [ "$CLOUD" -a ! -f /etc/cloud-configured ] && \
 	while true
