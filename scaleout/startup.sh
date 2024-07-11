@@ -51,7 +51,8 @@ do
 	[ ! -z "$SLURM_CONF_SERVER" ] && echo -e "Environment=SLURM_CONF_SERVER=${SLURM_CONF_SERVER}\n" >> ${f}
 done
 
-echo "export SLURM_CONF_SERVER=${SLURM_CONF_SERVER} SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}" >> /etc/profile
+[ ! -z "$SLURM_CONF_SERVER" ] && echo "export SLURM_CONF_SERVER=${SLURM_CONF_SERVER}" >> /etc/profile
+echo "export SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}" >> /etc/profile
 
 #start systemd
 exec /lib/systemd/systemd --system --log-level=info --crash-reboot --log-target=console
