@@ -34,7 +34,7 @@ then
 	do
 		sacctmgr show cluster &>/dev/null
 		[ $? -eq 0 ] && break
-		sleep 5
+		sleep 0.25
 	done
 
 else
