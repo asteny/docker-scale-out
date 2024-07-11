@@ -11,10 +11,27 @@ echo 'hosts:      files dns myhostname' >> /etc/nsswitch.conf
 #ensure the systemd cgroup directory exists for enroot
 mkdir -p $(awk -F: '$2 ~ /systemd/ {printf "/sys/fs/cgroup/systemd/%s", $3}' /proc/self/cgroup)
 
+mkdir -p -m 0755 /run/slurm/
 mkdir -p -m 0770 /auth
 chmod -R 0770 /auth
-mkdir -p -m 0755 /run/slurm
-chown slurm:slurm -R /run/slurm /auth /etc/slurm/
+chown slurm:slurm -R /run/slurm /auth
+
+/usr/local/bin/slurmd.check.sh
+if [ $? -eq 0 ]
+then
+	# Compute node only:
+	# Force configless by removing copy from original docker build
+	# Preserve slurm.key for auth/slurm
+	grep 'auth/slurm' /etc/slurm/slurm.conf &>/dev/null
+	if [ $? -eq 0 ]
+	then
+		find /etc/slurm/ ! -name slurm.key ! -name slurm | xargs rm -f
+		chown slurm:slurm -R /etc/slurm/
+
+	else
+		find /etc/slurm/ | xargs rm -f
+	fi
+fi
 
 #systemd user@.service handles on normal nodes
 for i in arnold bambam barney betty chip dino edna fred gazoo pebbles wilma; do

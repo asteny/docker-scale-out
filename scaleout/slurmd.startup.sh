@@ -32,16 +32,6 @@ for e in $(tr "\000" "\n" < /proc/1/environ); do
         eval "export $e"
 done
 
-# Force configless by removing copy from original docker build
-# Preserve slurm.key for auth/slurm
-grep 'auth/slurm' /etc/slurm/slurm.conf &>/dev/null
-if [ $? -eq 0 ]
-then
-	find /etc/slurm/ ! -name slurm.key ! -name slurm | xargs rm
-else
-	find /etc/slurm/ | xargs rm
-fi
-
 [ "$CLOUD" -a ! -f /etc/cloud-configured ] && \
 	while true
 	do

@@ -4,8 +4,4 @@ Conflicts=slurmd.service
 After=slurmd.service
 [Service]
 ExecCondition=/bin/sh -c '/usr/local/bin/slurmd.check.sh && exit 1 || exit 0'
-ExecStartPre=+chown -R slurm:slurm /etc/slurm/slurm.key
-ExecStartPre=+chmod 0600 /etc/slurm/slurm.key
-ExecStartPre=+mkdir -p -m 0755 /run/slurm/
-ExecStartPre=+chown -R slurm:slurm /run/slurm/
 Environment=SACKD_OPTIONS=-vvvvv
