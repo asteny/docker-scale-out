@@ -7,7 +7,6 @@ ExecCondition=/usr/local/bin/slurmd.check.sh
 ExecStartPre=+touch /var/log/slurmd.log
 ExecStartPre=+chown slurm:slurm /var/log/slurmd.log
 ExecStartPre=+/usr/local/bin/slurmd.startup.sh
-ExecStartPost=+/usr/local/bin/slurmd.startup2.sh
 Environment="SLURMD_OPTIONS=-Z --conf Feature=compute"
 Slice=slurmd.slice
 TimeoutStartUSec=infinity
