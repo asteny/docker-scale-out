@@ -1,0 +1,15 @@
+[Unit]
+After=slurmd.slice
+Requires=slurmd.slice
+[Service]
+ExecStartPre=+touch /var/log/slurmd.log
+ExecStartPre=+chown slurm:slurm /var/log/slurmd.log
+ExecStartPre=+/usr/local/bin/slurmd.startup.sh
+Environment=CLOUD=1
+Environment="SLURMD_OPTIONS=-Fcloud -b"
+ExecStartPre=+hostnamectl set-hostname ${NODENAME}
+Slice=slurmd.slice
+TimeoutStartUSec=infinity
+TimeoutStartSec=infinity
+Restart=always
+RestartSec=1

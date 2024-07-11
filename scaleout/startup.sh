@@ -1,4 +1,5 @@
 #!/bin/bash
+exec 1> >(logger -s -t $(basename $0)) 2>&1
 
 # Add hosts in the not crazy slow manner
 cat /etc/hosts.nodes >> /etc/hosts
@@ -53,6 +54,27 @@ done
 
 [ ! -z "$SLURM_CONF_SERVER" ] && echo "export SLURM_CONF_SERVER=${SLURM_CONF_SERVER}" >> /etc/profile
 echo "export SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}" >> /etc/profile
+
+if [ $CLOUD ]
+then
+	# Override slurmd.service with cloud version
+	mv /usr/local/etc/slurmd.cloud.service \
+		/etc/systemd/system/slurmd.service.d/local.conf
+
+	while true
+	do
+		#init this cloud node
+		host="$(echo "whoami:$(hostname)" | socat -t999 STDIO UNIX-CONNECT:/run/cloud_socket)"
+
+		[ -z "$host" -o "$host" == "FAIL" ] || break
+		sleep 0.25
+	done
+
+	hostname $host
+	echo "$host" > /etc/hostname
+
+	echo "Environment=\"NODENAME=$host\"" >>/etc/systemd/system/slurmd.service.d/local.conf
+fi
 
 #start systemd
 exec /lib/systemd/systemd --system --log-level=info --crash-reboot --log-target=console
