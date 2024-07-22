@@ -63,7 +63,9 @@ def run(logger):
                     tag=node_names[op[1]]
 
                     os.system("docker rm -f \"%s\"" % (quote(tag)))
-                    node_names.pop(tag, None)
+                    if tag in node_names:
+                        node_names.pop(tag, None)
+
                     connection.sendall(b'ACK')
                     active_nodes -= 1
                 elif op[0] == "start":

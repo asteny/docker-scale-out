@@ -8,4 +8,6 @@ done
 scontrol token username=slurm lifespan=9999999 | sed 's#SLURM_JWT=##g' > /auth/slurm
 chmod 0755 -R /auth
 
+scontrol create nodename=cloud[00-99] state=cloud feature=cloud Weight=8 $(slurmd -C |head -1 | sed 's#NodeName=mgmtnode##g')
+
 exit 0

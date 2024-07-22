@@ -32,7 +32,8 @@ set_nocache:
 nocache: set_nocache build
 
 clean:
-	test -f ./docker-compose.yml && ($(DC) kill -s SIGKILL; $(DC) down --remove-orphans -t1 -v; unlink ./docker-compose.yml) || true
+	test -f ./docker-compose.yml && ($(DC) up --scale cloud=0 -t1 --no-start; $(DC) kill -s SIGKILL; $(DC) down --remove-orphans -t1 -v; unlink ./docker-compose.yml) || true
+	test -f ./docker-compose.yml && ($(DC) kill -s SIGKILL; $(DC) down --scale cloud=0 --remove-orphans -t1 -v; unlink ./docker-compose.yml) || true
 	[ -f $(CLOUD_SOCKET) ] && unlink $(CLOUD_SOCKET) || true
 	[ -f $(CLOUD_PID) ] && (kill $(shell cat $(CLOUD_PID)) && unlink $(CLOUD_PID)) || true
 

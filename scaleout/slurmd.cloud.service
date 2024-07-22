@@ -6,7 +6,7 @@ ExecStartPre=+touch /var/log/slurmd.log
 ExecStartPre=+chown slurm:slurm /var/log/slurmd.log
 ExecStartPre=+/usr/local/bin/slurmd.startup.sh
 Environment=CLOUD=1
-Environment="SLURMD_OPTIONS=-Fcloud -b"
+Environment="SLURMD_OPTIONS=-Z -b --conf=Feature=cloud"
 ExecStartPre=+hostnamectl set-hostname ${NODENAME}
 Slice=slurmd.slice
 TimeoutStartUSec=infinity
