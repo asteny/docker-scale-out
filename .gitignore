@@ -2,6 +2,7 @@ docker-compose.yml
 scaleout/hosts.nodes
 scaleout/nodelist
 scaleout/patch.d/*.patch
-cloud_socket
+cloud.socket
+cloud.pid
 scaleout.tar
 federation

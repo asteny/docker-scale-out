@@ -7,7 +7,8 @@ Docker compose cluster for testing Slurm
   * docker-compose-plugin v2.18.1+
   * ssh (client)
   * jq
-  * python3 (cloud mode)
+  * python3
+    * python3-daemon
 
 ## Changes needed in sysctl.conf:
 ```
@@ -197,15 +198,6 @@ make build
 ```
 make
 ```
-
-## To build and run in Cloud mode:
-
-```
-make clean
-make cloud
-```
-
-Note: cloud mode will run in the foreground.
 
 ## To build without caching:
 

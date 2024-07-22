@@ -64,7 +64,7 @@ then
 	while true
 	do
 		#init this cloud node
-		host="$(echo "whoami:$(hostname)" | socat -t999 STDIO UNIX-CONNECT:/run/cloud_socket)"
+		host="$(echo "whoami:$(hostname)" | socat -t999 STDIO UNIX-CONNECT:/run/cloud.socket)"
 
 		[ -z "$host" -o "$host" == "FAIL" ] || break
 		sleep 0.25

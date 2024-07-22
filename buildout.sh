@@ -457,16 +457,12 @@ else
 	XDMOD=""
 fi
 
-if [ "$CLOUD" ]
-then
-	CLOUD_MOUNTS="
+CLOUD_MOUNTS="
       - type: bind
-        source: $(readlink -e $(pwd)/cloud_socket)
-        target: /run/cloud_socket
+        source: $(readlink -e $(pwd))/cloud.socket
+        target: /run/cloud.socket
 "
-else
-	CLOUD_MOUNTS=""
-fi
+
 # disable Linux specific options
 [ $MAC ] && LOGGING=
 
@@ -800,7 +796,7 @@ EOF
 	[ $oi -gt 100 -a ! -z "$name" ] && oi=0 && lastname="$name"
 done
 
-[ "$CLOUD" ] && cat <<EOF
+cat <<EOF
   cloud:
     image: scaleout:latest
     networks:
