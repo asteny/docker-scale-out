@@ -92,8 +92,11 @@ def run(logger):
 
                     if not found:
                         short_node=op[1]
-                        requested_node = requested_nodes.pop()
-                        node_names[requested_node]=short_node
+                        requested_node = None
+
+                        if len(requested_nodes) > 0:
+                            requested_node = requested_nodes.pop()
+                            node_names[requested_node]=short_node
 
                     if requested_node:
                         logger.info("responding: %s=%s" % (requested_node, short_node))
