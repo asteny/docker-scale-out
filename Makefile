@@ -27,7 +27,7 @@ stop:
 	$(DC) down
 
 set_nocache:
-	$(eval BUILD := build --no-cache)
+	$(eval BUILD := build --no-cache slurmdbd)
 
 nocache: set_nocache build
 

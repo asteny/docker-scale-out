@@ -55,7 +55,7 @@ done
 [ ! -z "$SLURM_CONF_SERVER" ] && echo "export SLURM_CONF_SERVER=${SLURM_CONF_SERVER}" >> /etc/profile
 echo "export SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}" >> /etc/profile
 
-if [ $CLOUD ]
+if [ $CLOUD -a ! -f /etc/cloud-configured ]
 then
 	[ ! -S /run/cloud.socket ] && echo "cloud.socket missing" && exit 1
 
@@ -76,6 +76,8 @@ then
 	echo "$host" > /etc/hostname
 
 	echo "Environment=\"NODENAME=$host\"" >>/etc/systemd/system/slurmd.service.d/local.conf
+
+	touch /etc/cloud-configured
 fi
 
 #start systemd
