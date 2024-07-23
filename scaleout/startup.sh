@@ -57,6 +57,8 @@ echo "export SLURM_FEDERATION_CLUSTER=${SLURM_FEDERATION_CLUSTER}" >> /etc/profi
 
 if [ $CLOUD ]
 then
+	[ ! -S /run/cloud.socket ] && echo "cloud.socket missing" && exit 1
+
 	# Override slurmd.service with cloud version
 	mv /usr/local/etc/slurmd.cloud.service \
 		/etc/systemd/system/slurmd.service.d/local.conf
