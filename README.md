@@ -147,7 +147,7 @@ Elastic search port:
   * export ELASTIC_SEARCH_PORT=9200
 
 Kibana port:
-  * export ELASTIC_SEARCH_PORT=5601
+  * export KIBANA_PORT=5601
 
 Slurmrestd proxy port:
   * export PROXY_PORT=8080
